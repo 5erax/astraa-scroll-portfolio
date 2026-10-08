@@ -5,7 +5,7 @@ const portfolio = {
   name: 'Astraa',
   role: 'Fullstack developer · UI & interaction',
   location: 'Ho Chi Minh, Vietnam',
-  since: '2024',
+  since: '2026',
   headline: ['A developer with an', 'eye for the interface.'],
   intro: 'I build web apps, mobile experiences, and worlds to explore.',
   note: 'Currently building ProZ0',

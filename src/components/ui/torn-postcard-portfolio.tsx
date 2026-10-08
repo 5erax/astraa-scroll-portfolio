@@ -16,6 +16,7 @@ import MusicPlayer from "./music-player"
 import ProfileViews from "./profile-views"
 import EntryBackground from "./entry-background"
 import FlippablePostcard from "./flippable-postcard"
+import DraggableProjectStack from "./draggable-project-stack"
 
 export type SceneKind = "dawn" | "lake" | "sun" | "forest" | "peak" | "night" | "river"
 
@@ -407,7 +408,6 @@ const TPP_CSS = `
 .tpp-entry-media{position:absolute;inset:0;z-index:-2;pointer-events:none}
 .tpp-entry-media img,.tpp-entry-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .tpp-entry-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#08122699,#08122699 50%,#081226dd)}
-.tpp-entry-video-control{position:absolute;bottom:24px;right:28px;display:flex;align-items:center;justify-content:center;gap:8px;min-width:44px;min-height:44px;font-size:10px;letter-spacing:.05em;color:var(--tpp-paper);opacity:.85}
 .tpp-entry::before{content:"";position:absolute;inset:18px;border:1px solid rgba(242,237,226,.14);pointer-events:none}
 .tpp-entry::after{content:"";position:absolute;inset:0;background-image:var(--tpp-gd);background-size:192px;pointer-events:none;z-index:-1}
 .tpp-entry-heading{text-align:center;margin:0}
@@ -448,7 +448,6 @@ const TPP_CSS = `
 .tpp-entry[data-opening] .tpp-entry-letter{transform:translateY(-50%) rotate(-2deg);transition-duration:.5s;transition-delay:.16s}
 @keyframes tpp-entry-exit{0%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-12px)}}
 @media(max-height:600px){.tpp-entry{gap:24px}.tpp-root .tpp-entry-button{width:min(340px,65vw)}.tpp-entry-footer{bottom:24px}}
-@media(max-width:760px){.tpp-entry-video-control{bottom:58px;right:20px}.tpp-entry-video-control span:last-child{display:none}}
 @media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
  .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-envelope{transform:rotateX(6deg) rotateY(-7deg) rotateZ(-1deg)}
  .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-flap{transform:rotateX(-24deg)}
@@ -568,16 +567,11 @@ const TPP_CSS = `
 .tpp-envelope{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .tpp-envelope .tpp-letter{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 
-.tpp-project-stack{touch-action:pan-y;perspective:1000px}
-.tpp-polaroid{position:absolute;inset:0;padding:10px 10px 0;background:#f7f4ee;box-shadow:0 22px 40px -18px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.25);transition:transform .4s cubic-bezier(.23,1,.32,1),opacity .25s}
-.tpp-polaroid[data-f="1"]{animation:tpp-flick1 .45s cubic-bezier(.23,1,.32,1)}
-.tpp-polaroid[data-f="2"]{animation:tpp-flick2 .45s cubic-bezier(.23,1,.32,1)}
-@keyframes tpp-flick1{0%{translate:0 0;z-index:30}45%{translate:-70% -6%;z-index:30}55%{z-index:0}100%{translate:0 0;z-index:0}}
-@keyframes tpp-flick2{0%{translate:0 0;z-index:30}45%{translate:-70% -6%;z-index:30}55%{z-index:0}100%{translate:0 0;z-index:0}}
-.tpp-polaroid[data-in="1"]{animation:tpp-back1 .45s cubic-bezier(.23,1,.32,1)}
-.tpp-polaroid[data-in="2"]{animation:tpp-back2 .45s cubic-bezier(.23,1,.32,1)}
-@keyframes tpp-back1{0%{translate:0 0;z-index:0}45%{translate:-70% -6%;z-index:0}55%{z-index:30}100%{translate:0 0;z-index:30}}
-@keyframes tpp-back2{0%{translate:0 0;z-index:0}45%{translate:-70% -6%;z-index:0}55%{z-index:30}100%{translate:0 0;z-index:30}}
+.tpp-project-stack{touch-action:pan-y pinch-zoom;perspective:1000px;cursor:grab;user-select:none}
+.tpp-project-stack[data-dragging]{cursor:grabbing}
+.tpp-polaroid{position:absolute;inset:0;padding:10px 10px 0;background:#f7f4ee;box-shadow:0 22px 40px -18px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.25);transition:transform .3s cubic-bezier(.23,1,.32,1),opacity .25s}
+.tpp-project-info{display:grid}
+.tpp-project-details{grid-area:1/1;display:flex;flex-direction:column}
 .tpp-ncard{position:relative;background:#f4f1ea;color:var(--tpp-ink);border-radius:8px;padding:clamp(14px,1.8cqw,22px);box-shadow:0 20px 40px -20px rgba(0,0,0,.65)}
 .tpp-ncard::before{content:"";position:absolute;inset:5px;border:1px solid rgba(38,54,79,.35);border-radius:5px;pointer-events:none}
 .tpp-chip{display:inline-block;padding:3px 9px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(38,54,79,.35);border-radius:99px}
@@ -1223,17 +1217,31 @@ function Photo({ src, kind, seed, alt }: { src?: string; kind?: SceneKind; seed?
   )
 }
 
-function SnapshotGallery({ photos }: { photos: NonNullable<PostcardAbout["snapshots"]> }) {
+function SnapshotGallery({ photos, active }: { photos: NonNullable<PostcardAbout["snapshots"]>; active: boolean }) {
   const [index, setIndex] = React.useState(0)
   const [animate, setAnimate] = React.useState(false)
+  const [automatic, setAutomatic] = React.useState(false)
+  const gallery = React.useRef<HTMLButtonElement>(null)
   const description = React.useId()
   const current = wrap(index, photos.length)
+  React.useEffect(() => {
+    if (!active || photos.length < 2) return
+    const timer = window.setInterval(() => {
+      const button = gallery.current
+      if (!button || document.hidden || button.closest("[inert]") || button.matches(":focus-within") || (matchMedia("(hover:hover)").matches && button.matches(":hover"))) return
+      setAutomatic(true)
+      setAnimate(true)
+      setIndex(i => wrap(i + 1, photos.length))
+    }, 3000)
+    return () => window.clearInterval(timer)
+  }, [active, index, photos.length])
   return (
-    <button type="button" className="tpp-mini-gallery" data-animate={animate ? "" : undefined} aria-label="Next personal photo" aria-describedby={description}
-      onClick={event => { setAnimate(event.detail > 0); setIndex(i => wrap(i + 1, photos.length)) }}
+    <button ref={gallery} type="button" className="tpp-mini-gallery" data-animate={animate ? "" : undefined} aria-label="Next personal photo" aria-describedby={description}
+      onClick={event => { setAutomatic(false); setAnimate(event.detail > 0); setIndex(i => wrap(i + 1, photos.length)) }}
       onKeyDown={event => {
         if (event.altKey || event.ctrlKey || event.metaKey || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return
         event.preventDefault()
+        setAutomatic(false)
         setAnimate(false)
         setIndex(i => wrap(i + (event.key === "ArrowRight" ? 1 : -1), photos.length))
       }}>
@@ -1241,7 +1249,7 @@ function SnapshotGallery({ photos }: { photos: NonNullable<PostcardAbout["snapsh
         {photos.map((photo, i) => <img key={photo.src} src={photo.src} alt={i === current ? photo.alt : ""} aria-hidden={i !== current} data-current={i === current ? "" : undefined} draggable={false} />)}
       </span>
       <span className="tpp-gallery-caption" aria-hidden="true"><span>{current + 1} / {photos.length}</span><span>Next photo ↗</span></span>
-      <span id={description} className="sr-only" aria-live="polite">{photos[current].alt}. Photo {current + 1} of {photos.length}.</span>
+      <span id={description} className="sr-only" aria-live={automatic ? "off" : "polite"}>{photos[current].alt}. Photo {current + 1} of {photos.length}.</span>
     </button>
   )
 }
@@ -1854,7 +1862,6 @@ export default function TornPostcardPortfolio({
 
   /* ---- chapter state ---- */
   const [pi, setPi] = React.useState(0)
-  const [flick, setFlick] = React.useState({ out: -1, into: -1, n: 0 })
   const [stop, setStop] = React.useState(stops.length - 1)
   const [message, setMessage] = React.useState("")
   const [from, setFrom] = React.useState("")
@@ -1866,7 +1873,6 @@ export default function TornPostcardPortfolio({
   const [messageError, setMessageError] = React.useState(false)
   const msgRef = React.useRef(null as HTMLTextAreaElement | null)
   const focusContact = React.useRef(false)
-  const gesture = React.useRef({ x: 0, y: 0, swiped: false })
 
   React.useEffect(() => {
     if (active === 4 && focusContact.current) {
@@ -1878,7 +1884,6 @@ export default function TornPostcardPortfolio({
   const step = (delta: number) => {
     const n = list.length
     const next = wrap(pi + delta, n)
-    setFlick((f) => ({ out: delta > 0 ? pi : -1, into: delta < 0 ? next : -1, n: f.n + 1 }))
     setPi(next)
   }
 
@@ -2073,7 +2078,7 @@ export default function TornPostcardPortfolio({
             <Photo src={ab.photo} kind="dawn" seed={4} alt={name + " — portrait"} />
           </div>
           <div className="tpp-snapshot absolute" style={{ left: narrow ? "48%" : "6%", bottom: 0, width: narrow ? "52%" : "58%", aspectRatio: "1.2", transform: "rotate(-4deg)", background: "#fbfaf6", padding: 6, boxShadow: "0 8px 16px rgba(0,0,0,.3)" }}>
-            {ab.snapshots?.length ? <SnapshotGallery photos={ab.snapshots} /> : <div className="relative h-full w-full overflow-clip">
+            {ab.snapshots?.length ? <SnapshotGallery photos={ab.snapshots} active={active === 1 && entry === "entered"} /> : <div className="relative h-full w-full overflow-clip">
               <Photo src={list[0].image} kind="lake" seed={6} alt={list[0].name + " — current work"} />
             </div>}
             <span className="tpp-tape" aria-hidden="true" style={{ right: narrow ? -6 : -26, top: -6, transform: "rotate(36deg)", pointerEvents: "none" }} />
@@ -2226,14 +2231,11 @@ export default function TornPostcardPortfolio({
           : depth === 2
             ? "translate(-7%, 5%) rotate(-8deg) scale(.9)"
             : "translate(0, 6%) rotate(2deg) scale(.86)"
-    const f = flick.out === j ? (flick.n % 2 ? "1" : "2") : undefined
-    const g = flick.into === j ? (flick.n % 2 ? "1" : "2") : undefined
     return (
       <div
         key={j}
         className="tpp-polaroid"
-        data-f={f}
-        data-in={g}
+        data-pose={tr}
         aria-hidden={depth !== 0}
         style={{ transform: tr, zIndex: 20 - depth, opacity: depth > 2 ? 0 : 1 }}
       >
@@ -2276,7 +2278,7 @@ export default function TornPostcardPortfolio({
             className="relative mx-auto flex w-full min-h-0 flex-1 items-center justify-center gap-[clamp(20px,5cqw,80px)] px-[clamp(16px,5cqw,64px)]"
             style={{ flexDirection: narrow ? "column" : "row", maxWidth: 1100, paddingBottom: narrow ? 8 : "6cqh", gap: narrow ? 14 : undefined }}
             onKeyDown={(e) => {
-              if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              if (!e.altKey && !e.ctrlKey && !e.metaKey && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
                 e.preventDefault()
                 step(e.key === "ArrowRight" ? 1 : -1)
               }
@@ -2286,55 +2288,39 @@ export default function TornPostcardPortfolio({
               <path className="tpp-dash" d="M30 72 C42 92 50 40 62 46" fill="none" stroke="#f3eee4" strokeOpacity=".55" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
             </svg>
             <Pop d={0.1} r={-6}>
-              <button
-                type="button"
-                className="tpp-project-stack relative block"
-                aria-label={"Next project (showing " + cur.name + ")"}
-                onClick={() => { if (!gesture.current.swiped) step(1); gesture.current.swiped = false }}
-                onPointerDown={e => {
-                  if (!e.isPrimary || e.button !== 0) return
-                  gesture.current = { x: e.clientX, y: e.clientY, swiped: false }
-                  e.currentTarget.setPointerCapture(e.pointerId)
-                }}
-                onPointerUp={e => {
-                  if (!e.isPrimary || e.button !== 0) return
-                  const dx = e.clientX - gesture.current.x
-                  const dy = e.clientY - gesture.current.y
-                  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                    gesture.current.swiped = true
-                    step(dx < 0 ? 1 : -1)
-                  }
-                }}
-                onPointerCancel={() => { gesture.current.swiped = false }}
+              <DraggableProjectStack
+                label={"Next project (showing " + cur.name + ")"}
+                onStep={step}
                 style={{ width: narrow ? "min(50cqw, calc(34cqh * .88))" : "min(28cqw, calc(54cqh * .88), 360px)", aspectRatio: "0.86" }}
               >
                 {polaroids}
                 <span className="tpp-tape" style={{ left: "50%", top: -10, marginLeft: -38, transform: "rotate(-4deg)", zIndex: 40 }} />
-              </button>
+              </DraggableProjectStack>
             </Pop>
             <Pop d={0.22} r={3} style={{ width: narrow ? "100%" : "min(420px, 40cqw)", maxWidth: 460 }}>
-              <div className="tpp-ncard" aria-live="polite">
+              <div className="tpp-ncard tpp-project-info" aria-live="polite">
+                {list.map((project, index) => <div key={project.name} className="tpp-project-details" data-current={index === pi ? "" : undefined} aria-hidden={index !== pi} inert={index !== pi} style={{ visibility: index === pi ? "visible" : "hidden" }}>
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="tpp-h" style={{ fontSize: "clamp(22px,2.6cqw,34px)", fontWeight: 400, letterSpacing: ".04em" }}>
-                    {cur.name}
+                    {project.name}
                   </h3>
                   <span className="tpp-serif shrink-0" style={{ fontSize: 15, opacity: 0.7 }}>
-                    {cur.year}
+                    {project.year}
                   </span>
                 </div>
-                {cur.role && (
+                {project.role && (
                   <p className="tpp-label mt-1" style={{ fontSize: 9.5, color: pal.accent }}>
-                    {cur.role}
+                    {project.role}
                   </p>
                 )}
-                {cur.description && (
-                  <p className="mt-3 text-[13px] leading-relaxed sm:text-[14px]" style={{ display: "-webkit-box", WebkitLineClamp: narrow ? 3 : 5, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                    {cur.description}
+                {project.description && (
+                  <p className="mt-3 flex-1 text-[13px] leading-relaxed sm:text-[14px]" style={{ display: "-webkit-box", WebkitLineClamp: narrow ? 3 : 5, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {project.description}
                   </p>
                 )}
-                {cur.tags && cur.tags.length > 0 && (
+                {project.tags && project.tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {cur.tags.map((t) => (
+                    {project.tags.map((t) => (
                       <span key={t} className="tpp-chip">
                         {t}
                       </span>
@@ -2342,16 +2328,17 @@ export default function TornPostcardPortfolio({
                   </div>
                 )}
                 <div className="mt-4">
-                  {cur.url ? (
-                    <a href={cur.url} target="_blank" rel="noreferrer" className="tpp-label" style={{ fontSize: 10, color: pal.accent, borderBottom: "1px solid currentColor", paddingBottom: 2 }}>
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noreferrer" className="tpp-label" style={{ fontSize: 10, color: pal.accent, borderBottom: "1px solid currentColor", paddingBottom: 2 }}>
                       View project ↗
                     </a>
                   ) : (
-                    <button type="button" className="tpp-label" style={{ fontSize: 10, color: pal.accent, borderBottom: "1px solid currentColor", paddingBottom: 2 }} onClick={() => ask(cur)}>
+                    <button type="button" className="tpp-label" style={{ fontSize: 10, color: pal.accent, borderBottom: "1px solid currentColor", paddingBottom: 2 }} onClick={() => ask(project)}>
                       Ask me about it →
                     </button>
                   )}
                 </div>
+                </div>)}
               </div>
               <div className="tpp-project-controls mt-3 flex items-center justify-between gap-3" style={{ color: "#f3eee4" }}>
                 <div className="flex items-center gap-2">
@@ -2703,7 +2690,7 @@ export default function TornPostcardPortfolio({
               <button type="button" className="tpp-brand" onClick={() => go(0)}>
                 {name}
               </button>
-              <ProfileViews opened={entry === "entered"} />
+              <ProfileViews opened={entry !== "sealed"} />
             </div>
             <div className="tpp-links">
               {labels.map((l, i) => (

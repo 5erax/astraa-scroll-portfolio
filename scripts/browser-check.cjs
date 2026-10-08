@@ -10,11 +10,12 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     const viewRequests = [];
     const visits = new Set();
     const mockViews = target => target.route('**/api/profile-views', route => {
+      if (route.request().method() === 'GET') return route.fulfill({ json: { count: 845 + visits.size } });
       const id = route.request().headers()['idempotency-key'];
       assert.match(id, /^[0-9a-f-]{36}$/i);
       viewRequests.push(id);
       visits.add(id);
-      return route.fulfill({ json: { count: 318 + visits.size } });
+      return route.fulfill({ json: { count: 845 + visits.size } });
     });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     await mockViews(page);
@@ -73,7 +74,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.locator('.tpp-root[data-entry=entered]').waitFor();
     assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert), false);
     assert.equal(await page.getByRole('button', { name: 'Astraa', exact: true }).evaluate(node => node === document.activeElement), true);
-    await page.getByRole('img', { name: '319 profile views', exact: true }).waitFor();
+    await page.getByRole('img', { name: '846 profile views', exact: true }).waitFor();
     assert.equal(viewRequests.length, 1, 'Opening the portfolio records one view.');
     await page.waitForFunction(() => { const media = document.querySelector('.music-stamp audio'); return !media.paused && media.currentTime > .2; });
     await musicTrigger.click();
@@ -122,6 +123,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await page.locator('link[rel=icon]').getAttribute('href'), '/media/avatar-personal.png');
     assert.equal(await page.locator('img[src="/media/avatar.png"]').count(), 0);
     const gallery = page.getByRole('button', { name: 'Next personal photo', exact: true });
+    await gallery.hover();
     const personalPhotos = ['team', 'friends', 'working', 'workspace', 'team-session'];
     const gallerySize = await gallery.evaluate(node => [node.clientWidth, node.clientHeight]);
     assert.ok(await gallery.evaluate(node => node.parentElement.clientWidth / node.parentElement.parentElement.clientWidth > .55), 'The personal polaroid must be larger than the old 42% thumbnail.');
@@ -391,6 +393,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
     } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: envelope caption and physical airmail layers, profile views from 319/no extra chapter counts/unavailable storage, personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, seven project images, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
+    console.log('PASS: envelope caption and physical airmail layers, actual prefetched profile views/no extra chapter counts/unavailable storage, personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, seven project images, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

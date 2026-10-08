@@ -42,7 +42,7 @@ Domain production chính thức: `astraa1.vercel.app`, được gắn cố đị
 
 Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` để kiểm tra tương tác bằng Chromium headless trong một browser riêng. Script dùng Playwright đã cài trong runtime Codex; ở máy khác có thể chỉ định đường dẫn module Playwright đã cài bằng biến `PLAYWRIGHT_MODULE`. Ảnh kiểm tra được lưu trong `outputs/` và không commit. Check không gửi email hoặc mở liên kết bên ngoài.
 
-`npm run check:motion -- http://localhost:3001` kiểm tra riêng nền video, pause/resume, ảnh dự phòng, click/kéo/hủy kéo/lật bằng bàn phím và touch, cuộn dọc trên postcard, lối tắt Contact và tọa độ các mốc timeline ở 320–1440 px. Cả hai browser check giả lập API lượt xem để không tăng bộ đếm production.
+`npm run check:motion -- http://localhost:3001` kiểm tra riêng số lượt xem thật trước khi mở, video chạy không có nút pause, ảnh dự phòng, gallery tự chuyển mỗi 3 giây, kéo/hủy kéo/lật bằng bàn phím và touch, thẻ dự án giữ kích thước, cuộn dọc trên postcard, lối tắt Contact và tọa độ các mốc timeline ở 320–1440 px. Cả hai browser check giả lập API lượt xem để không tăng bộ đếm production.
 
 Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
 
@@ -68,19 +68,21 @@ Biểu tượng mắt và tổng lượt xem nằm gọn dưới tên Astraa tro
 
 Mỗi lần mở phong bì ghi một lượt qua `POST /api/profile-views`. Chuyển chương, nhạc hoặc gallery không ghi thêm. Một UUID ẩn danh tồn tại trong trang dùng để chống ghi trùng request trong 24 giờ; refresh rồi mở lại được tính là lượt mới. Redis dùng Lua để khởi tạo, chống trùng và tăng số một cách nguyên tử, giữ tổng sau deploy và dùng chung cho mọi người xem. `GET /api/profile-views` chỉ đọc tổng.
 
+Giao diện đọc tổng bằng GET ngay ở màn phong bì; POST bắt đầu khi người xem mở thư, trong lúc chạy animation mở. Không dùng 319 làm số hiển thị tạm. Khi chưa có dữ liệu, chừa chỗ trống cho số; chỉ hiện tổng thật sau phản hồi hợp lệ. Request đọc cũ không ghi đè kết quả lượt mở mới nếu hai phản hồi đến khác thứ tự.
+
 Kết nối Marketplace **Upstash for Redis**, gói **Free**, region **sin1**, tắt **autoUpgrade**, **prodPack** và **eviction**. Chủ tài khoản cần chấp nhận điều khoản Marketplace trước khi Vercel cấp lưu trữ. Token không xuất ra client; không lưu IP, email hay tên người xem. Server từ chối lượt ghi có origin khác hoặc UUID không hợp lệ. Nếu lưu trữ thiếu cấu hình, hết hạn mức hoặc lỗi mạng, UI hiện **—** thay vì bịa tổng lượt xem. Bộ đếm đo lượt mở, có thể bao gồm lần xem lặp và bot, không đo người dùng duy nhất.
 
-Browser check giả lập API để các lần kiểm tra không tăng số production; kiểm tra không ghi trước khi mở, số bắt đầu 319, chỉ ghi một lần khi mở, không ghi khi đổi chương và trạng thái lưu trữ lỗi. Redis thật đã được kiểm tra bằng namespace QA riêng: năm request cùng UUID đồng thời chỉ ghi một lượt ở 319, lượt mới thành 320, đọc lại vẫn là 320. Dữ liệu QA được xóa sau kiểm tra, không tăng bộ đếm production.
+Browser check giả lập API để các lần kiểm tra không tăng số production; kiểm tra GET trước khi mở, số thật không nháy 319, chỉ POST một lần khi mở, không ghi khi đổi chương và trạng thái lưu trữ lỗi. Redis thật đã được kiểm tra bằng namespace QA riêng: năm request cùng UUID đồng thời chỉ ghi một lượt ở 319, lượt mới thành 320, đọc lại vẫn là 320. Dữ liệu QA được xóa sau kiểm tra, không tăng bộ đếm production.
 
 ## Ảnh thật
 
 About dùng `IMG_1417.png` làm ảnh chân dung lớn. Polaroid nhỏ rộng 58% cột ảnh trên desktop (trước đây 42%) và 52% trên mobile. Ảnh team `IMG_8332.jpg` hiển thị đầu tiên; bấm để chuyển qua bốn ảnh tiếp theo: `IMG_8178.jpg`, `IMG_8118.jpg`, `IMG_7125.jpg`, `IMG_8007.jpg`, rồi quay lại ảnh team. Khung có kích thước cố định và bộ đếm 1–5; ảnh dọc dùng `object-fit: contain` để giữ nguyên toàn bộ ảnh.
 
-Gallery dùng native button, hỗ trợ click/tap, Enter/Space, ArrowLeft/ArrowRight và thông báo ảnh hiện tại cho screen reader. Chuyển ảnh bằng chuột/touch có crossfade 200 ms; bàn phím và reduced motion đổi ngay. State nằm trong gallery nên click ảnh không render lại toàn bộ portfolio. Không tự chạy slideshow.
+Gallery dùng native button, hỗ trợ click/tap, Enter/Space, ArrowLeft/ArrowRight và thông báo ảnh hiện tại cho screen reader. Tự chuyển ảnh mỗi **3 giây** khi xem mặt trước About; dừng lúc hover/focus, tab bị ẩn hoặc chuyển chương. Thao tác tay khởi động lại nhịp 3 giây. Các lần tự đổi không đọc live announcement liên tục. Chuyển ảnh bằng chuột/touch có crossfade 200 ms; bàn phím và reduced motion đổi ngay. State nằm trong gallery nên đổi ảnh không render lại toàn bộ portfolio.
 
 Ảnh được resize/nén bằng Sharp đã có sẵn trong Next.js, không thêm dependency và không sửa nội dung bằng AI. Ảnh team được crop bớt không gian trống, vẫn giữ đủ bốn người và toàn thân. Bản xuất bỏ metadata của máy ảnh. `IMG_8595.jpg` được lấy vùng phía trên để làm avatar vuông 384×384; tên file `avatar-personal.png` tránh dùng lại URL avatar cũ. File gốc trong Downloads được giữ nguyên.
 
-About dùng avatar GitHub thật của Astraa và ảnh ProZ0 đang làm. Bảy polaroid đều dùng ảnh WebP 800×800, không còn ảnh phong cảnh mẫu. Các ảnh chụp từ trang public ngày 08/10/2026:
+About dùng ảnh cá nhân do Astraa cung cấp. Bảy polaroid dự án đều dùng ảnh WebP 800×800, không còn ảnh phong cảnh mẫu. Các ảnh chụp từ trang public ngày 08/10/2026:
 
 | File trong `public/media/` | Nguồn | Nội dung |
 | --- | --- | --- |
@@ -116,7 +118,9 @@ About lật trong phối cảnh 3D khi bấm ảnh lớn, chữ hoặc phần gi
 
 Bao thư nhỏ ở About là nút **Write Astraa a letter**, chuyển tới Contact và focus vào ô nội dung; không tự gửi thư. Timeline ghi đầy đủ **2020–2024**, **2024–present**, giữ nhãn trên một dòng và tâm vòng tròn nằm đúng trên đường đi. Thẻ thông tin đặt bên dưới bản đồ để không che mốc khác ở desktop hoặc mobile.
 
-Màn mở đầu dùng video **heart-lake-side-wuthering-waves-moewalls-com.mp4** do Astraa cung cấp, chuyển từ 4K/60 fps, khoảng 101,7 MB, thành H.264 1280×720/30 fps khoảng **3,63 MB**, có fast start và không có audio. Poster WebP khoảng 102 KB lấy từ video. Video loop không tiếng, có nút pause/resume và tự pause khi tab bị ẩn. Nó được gỡ khỏi trang khi phong bì mở xong. Reduced motion không tải MP4; lỗi video dùng poster. Nhạc giữ cơ chế bắt đầu ở 35% sau thao tác mở thư.
+Màn mở đầu dùng video **heart-lake-side-wuthering-waves-moewalls-com.mp4** do Astraa cung cấp, chuyển từ 4K/60 fps, khoảng 101,7 MB, thành H.264 1280×720/30 fps khoảng **3,63 MB**, có fast start và không có audio. Poster WebP khoảng 102 KB lấy từ video. Video loop không tiếng, không có nút pause/resume. Theo yêu cầu của Astraa, nền video vẫn chạy với reduced motion; các hiệu ứng giấy vẫn giảm chuyển động. Tab bị ẩn tạm dừng decode, trở lại thì tiếp tục; gesture đầu tiên thử lại nếu browser chặn autoplay. Nó được gỡ khỏi trang khi phong bì mở xong; lỗi video dùng poster. Tem và footer dùng năm **2026**. Nhạc giữ cơ chế bắt đầu ở 35% sau thao tác mở thư.
+
+Work kéo tấm ảnh theo con trỏ ở cả hai chiều, không chờ đến lúc thả mới phản ứng. Thả qua ngưỡng 22% chiều rộng (tối thiểu 40 px) để chuyển dự án; kéo ngắn hoặc hủy trả ảnh về chồng. Vuốt dọc trên touch vẫn cuộn trang. Kéo, nút và bàn phím dùng cùng state/transition, không còn keyframe xung đột khi đổi liên tiếp. Bảy nội dung mô tả nằm cùng một ô CSS Grid; các thẻ ẩn giữ chiều cao tự nhiên của nội dung dài nhất nhưng `inert` và không đọc được. Khung ngoài và hàng điều hướng giữ cùng kích thước/vị trí khi chọn dự án khác, tự tính lại theo viewport.
 
 ## Nguồn
 

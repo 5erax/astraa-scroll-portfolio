@@ -12,19 +12,31 @@ const url = process.argv[2] || 'http://localhost:3001';
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     page.setDefaultTimeout(10000);
     // Every context uses a fake count; QA must never inflate the live total.
-    await page.route('**/api/profile-views', route => route.fulfill({ json: { count: 319 } }));
+    const counterMethods = [];
+    await page.route('**/api/profile-views', async route => {
+      const method = route.request().method();
+      counterMethods.push(method);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return route.fulfill({ json: { count: method === 'POST' ? 915 : 914 } });
+    });
+    await page.addInitScript(() => {
+      window.__viewValues = [];
+      new MutationObserver(() => {
+        const value = document.querySelector('.tpp-profile-views span')?.textContent.trim();
+        if (value && window.__viewValues.at(-1) !== value) window.__viewValues.push(value);
+      }).observe(document, { subtree: true, childList: true, characterData: true });
+    });
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(url, { waitUntil: 'networkidle' });
+    await page.waitForFunction(() => document.querySelector('.tpp-profile-views span')?.textContent === '914');
+    assert.deepEqual(counterMethods, ['GET'], 'The sealed letter reads the actual count without recording a visit.');
+    assert.deepEqual(await page.evaluate(() => window.__viewValues), ['914'], 'Loading must never paint the seeded 319 value.');
     const video = page.locator('.tpp-entry-media video');
     await page.waitForFunction(() => document.querySelector('video')?.currentTime > .2);
     assert.equal(await video.evaluate(node => node.muted && node.loop && node.playsInline), true);
     assert.equal(await page.locator('audio').evaluate(node => node.paused && node.currentTime === 0), true);
-    await page.getByRole('button', { name: 'Pause background video', exact: true }).click();
-    const pausedAt = await video.evaluate(node => node.currentTime);
-    await page.waitForTimeout(200);
-    assert.equal(await video.evaluate(node => node.currentTime), pausedAt);
-    await page.getByRole('button', { name: 'Play background video', exact: true }).click();
-    await page.waitForFunction(time => document.querySelector('video').currentTime > time + .1, pausedAt);
+    assert.equal(await page.locator('.tpp-entry-video-control').count(), 0);
+    assert.match(await page.locator('.tpp-entry-footer').textContent(), /2026$/);
     await page.evaluate(() => {
       Object.defineProperty(document, 'hidden', { configurable: true, value: true });
       document.dispatchEvent(new Event('visibilitychange'));
@@ -39,6 +51,9 @@ const url = process.argv[2] || 'http://localhost:3001';
     await page.evaluate(() => { window.__entryVideo = document.querySelector('video'); });
     await page.getByRole('button', { name: 'Open letter', exact: true }).click();
     await page.locator('.tpp-root[data-entry=entered]').waitFor();
+    assert.equal(await page.locator('.tpp-profile-views span').textContent(), '915');
+    assert.deepEqual(counterMethods, ['GET', 'POST']);
+    assert.deepEqual(await page.evaluate(() => window.__viewValues), ['914', '915']);
     assert.equal(await video.count(), 0, 'Entering must remove the video from the portfolio.');
     await page.waitForFunction(() => window.__entryVideo.paused);
     await page.getByRole('button', { name: /^Music player/ }).click();
@@ -55,6 +70,21 @@ const url = process.argv[2] || 'http://localhost:3001';
       await page.waitForTimeout(1500);
     };
     await go('About');
+    const autoGallery = page.getByRole('button', { name: 'Next personal photo', exact: true });
+    await page.mouse.move(10, 10);
+    await page.waitForFunction(() => document.querySelector('.tpp-mini-gallery img[data-current]').getAttribute('src') === '/media/friends.webp');
+    const firstAutoAt = Date.now();
+    await page.waitForFunction(() => document.querySelector('.tpp-mini-gallery img[data-current]').getAttribute('src') === '/media/working.webp');
+    assert.ok(Date.now() - firstAutoAt >= 2800 && Date.now() - firstAutoAt < 4000, 'Automatic photos must advance every three seconds.');
+    assert.equal(await autoGallery.locator('[aria-live]').getAttribute('aria-live'), 'off', 'Automatic swaps must not repeatedly announce while the visitor reads the note.');
+    await autoGallery.hover();
+    const heldPhoto = await autoGallery.locator('img[data-current]').getAttribute('src');
+    await page.waitForTimeout(3200);
+    assert.equal(await autoGallery.locator('img[data-current]').getAttribute('src'), heldPhoto, 'Hover must hold the photo being viewed.');
+    await autoGallery.focus();
+    await page.mouse.move(10, 10);
+    await page.waitForTimeout(3200);
+    assert.equal(await autoGallery.locator('img[data-current]').getAttribute('src'), heldPhoto, 'Keyboard focus must hold the photo being viewed.');
     const paper = page.locator('.tpp-flip');
     const back = async expected => {
       assert.equal(await paper.getAttribute('data-back'), expected ? '' : null);
@@ -74,8 +104,10 @@ const url = process.argv[2] || 'http://localhost:3001';
     await clickAt(.95, .9); // Paper margin.
     await back(false);
     const gallery = page.getByRole('button', { name: 'Next personal photo', exact: true });
+    await gallery.hover();
+    const beforePhoto = await gallery.locator('img[data-current]').getAttribute('src');
     await gallery.click();
-    assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/friends.webp');
+    assert.notEqual(await gallery.locator('img[data-current]').getAttribute('src'), beforePhoto);
     await back(false);
     await page.getByRole('button', { name: 'Click for more ↻', exact: true }).focus();
     await page.keyboard.press('Enter');
@@ -108,6 +140,48 @@ const url = process.argv[2] || 'http://localhost:3001';
     await page.waitForFunction(() => document.querySelector('.tpp-link[aria-current=true]')?.textContent === 'Contact');
     assert.equal(await page.locator('textarea').evaluate(node => node === document.activeElement), true);
     assert.equal(await page.locator('textarea').inputValue(), '', 'The shortcut opens Contact without composing or sending a message.');
+
+    await go('Work');
+    const deck = page.locator('.tpp-project-stack');
+    const dragProject = async (fraction, cancel = false, keyboard = false) => {
+      const box = await deck.boundingBox();
+      const x = box.x + box.width / 2, y = box.y + box.height / 2;
+      await page.mouse.move(x, y);
+      await page.waitForTimeout(220);
+      const card = deck.locator('.tpp-polaroid[aria-hidden=false]');
+      const grabbed = await card.elementHandle();
+      const start = await card.boundingBox();
+      await page.mouse.down();
+      await page.mouse.move(x + box.width * fraction, y + 20, { steps: 8 });
+      const held = await card.boundingBox();
+      assert.ok(Math.abs(held.x - start.x - box.width * fraction) < 1 && Math.abs(held.y - start.y - 20) < 1, 'The held project photo must track the pointer in both axes.');
+      assert.equal(await card.evaluate(node => getComputedStyle(node).transitionDuration), '0s');
+      if (cancel) await deck.dispatchEvent('pointercancel', { pointerId: 1 });
+      if (keyboard) {
+        await deck.focus();
+        await page.keyboard.press('ArrowRight');
+        await page.waitForTimeout(50);
+        assert.equal(await grabbed.evaluate(node => {
+          const target = document.createElement('div');
+          target.style.transform = node.dataset.pose;
+          return node.style.transform === target.style.transform;
+        }), true, 'A keyboard project change must cancel the held card to its new deck position.');
+        await page.keyboard.press('Space');
+        assert.match(await deck.getAttribute('aria-label'), /FinGenie/, 'A cancelled drag must not consume keyboard button activation.');
+      }
+      await page.mouse.up();
+      await page.waitForTimeout(350);
+    };
+    await dragProject(.1);
+    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    await dragProject(-.4, true);
+    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    await dragProject(-.4);
+    assert.match(await deck.getAttribute('aria-label'), /MediMate AI/);
+    await dragProject(.4);
+    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    await dragProject(.1, false, true);
+    assert.match(await deck.getAttribute('aria-label'), /FinGenie/);
 
     for (const [width, height] of [[1440, 900], [1024, 768], [768, 1024], [390, 844], [320, 640]]) {
       console.log('Checking timeline:', width);
@@ -146,7 +220,19 @@ const url = process.argv[2] || 'http://localhost:3001';
       }
       await page.screenshot({ path: `outputs/astraa-journey-${width}.png` });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      await go('Work');
+      const cardSize = await page.locator('.tpp-project-info').evaluate(node => [node.offsetWidth, node.offsetHeight]);
+      const controlsY = await page.locator('.tpp-project-controls').evaluate(node => node.offsetTop);
+      for (let project = 0; project < 7; project++) {
+        await page.getByRole('group', { name: 'Projects', exact: true }).locator('button').nth(project).click();
+        assert.deepEqual(await page.locator('.tpp-project-info').evaluate(node => [node.offsetWidth, node.offsetHeight]), cardSize, `Project card dimensions changed at ${width}px.`);
+        assert.equal(await page.locator('.tpp-project-controls').evaluate(node => node.offsetTop), controlsY, 'Project controls must not move with the description.');
+        assert.equal(await page.getByRole('link', { name: 'View project ↗', exact: true }).count(), 1);
+      }
+      assert.equal(await page.locator('.tpp-project-details:not([data-current])').evaluateAll(nodes => nodes.every(node => node.inert && getComputedStyle(node).visibility === 'hidden')), true);
+      await page.screenshot({ path: `outputs/astraa-work-fixed-${width}.png` });
     }
+    await go('Journey');
     await page.locator('.tpp-pin').first().focus();
     await page.keyboard.press('ArrowRight');
     assert.equal(await page.locator('.tpp-pin').nth(1).getAttribute('aria-pressed'), 'true');
@@ -187,31 +273,37 @@ const url = process.argv[2] || 'http://localhost:3001';
     assert.equal(await paper.evaluate(node => getComputedStyle(node).transitionDuration), '0s');
     await back(true);
 
-    // A fresh reduced-motion page must use the poster without requesting the video.
+    // The owner explicitly requests the background to loop, including reduced motion.
     console.log('Checking video fallbacks');
     const still = await browser.newPage({ reducedMotion: 'reduce' });
     const videoRequests = [];
     still.on('request', request => { if (request.url().includes('heart-lake.mp4')) videoRequests.push(request.url()); });
     await still.route('**/api/profile-views', route => route.fulfill({ json: { count: 319 } }));
     await still.goto(url, { waitUntil: 'networkidle' });
-    assert.deepEqual(videoRequests, []);
-    assert.equal(await still.locator('video').count(), 0);
+    assert.ok(videoRequests.length > 0);
+    await still.waitForFunction(() => document.querySelector('video')?.currentTime > .1);
     assert.equal(await still.locator('.tpp-entry-media img').evaluate(node => node.complete && node.naturalWidth > 0), true);
     await still.close();
     const blocked = await browser.newPage();
     await blocked.route('**/api/profile-views', route => route.fulfill({ json: { count: 319 } }));
     await blocked.addInitScript(() => {
       const play = HTMLMediaElement.prototype.play;
+      window.__blockedVideoAttempts = 0;
       window.__restorePlay = () => { HTMLMediaElement.prototype.play = play; };
       HTMLMediaElement.prototype.play = function () {
-        return this instanceof HTMLVideoElement ? Promise.reject(new DOMException('Blocked', 'NotAllowedError')) : play.call(this);
+        if (this instanceof HTMLVideoElement) {
+          window.__blockedVideoAttempts++;
+          return Promise.reject(new DOMException('Blocked', 'NotAllowedError'));
+        }
+        return play.call(this);
       };
     });
     await blocked.goto(url, { waitUntil: 'domcontentloaded' });
-    await blocked.getByRole('button', { name: 'Play background video', exact: true }).waitFor();
+    await blocked.locator('video').waitFor();
+    await blocked.waitForFunction(() => window.__blockedVideoAttempts > 0);
     assert.equal(await blocked.locator('video').evaluate(node => node.paused), true);
     await blocked.evaluate(() => window.__restorePlay());
-    await blocked.getByRole('button', { name: 'Play background video', exact: true }).click();
+    await blocked.locator('.tpp-entry-heading').click();
     await blocked.waitForFunction(() => document.querySelector('video').currentTime > .1);
     await blocked.close();
     const failed = await browser.newPage();
@@ -223,7 +315,20 @@ const url = process.argv[2] || 'http://localhost:3001';
     await failed.getByRole('button', { name: 'Open letter', exact: true }).click();
     await failed.locator('.tpp-root[data-entry=entered]').waitFor();
     await failed.close();
+    const early = await browser.newPage();
+    await early.route('**/api/profile-views', async route => {
+      const read = route.request().method() === 'GET';
+      await new Promise(resolve => setTimeout(resolve, read ? 1800 : 20));
+      return route.fulfill({ json: { count: read ? 959 : 960 } });
+    });
+    await early.goto(url, { waitUntil: 'domcontentloaded' });
+    await early.getByRole('button', { name: 'Open letter', exact: true }).click();
+    await early.locator('.tpp-root[data-entry=entered]').waitFor();
+    await early.waitForFunction(() => document.querySelector('.tpp-profile-views span')?.textContent === '960');
+    await early.waitForTimeout(2000);
+    assert.equal(await early.locator('.tpp-profile-views span').textContent(), '960', 'A late prefetch must not overwrite the recorded visit count.');
+    await early.close();
     assert.deepEqual(errors, []);
-    console.log('PASS: real muted video/pause/resume/unmount, still/error fallback, whole-paper click and keyboard/drag/cancel/touch flips, gallery preserved, vertical touch scroll, contact shortcut/focus, reduced motion, centered timeline nodes and readable dates with clear cards at 320–1440px.');
+    console.log('PASS: actual profile count prefetched/no seeded flash, continuous video/no pause UI/gesture retry/unmount/error poster, 2026, gallery every 3s with hover/focus holds, pointer-tracked project dragging/short/cancel/directions, equal project cards/controls at 320–1440px, whole-paper flips/touch/native scroll/Contact focus, timeline alignment.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
