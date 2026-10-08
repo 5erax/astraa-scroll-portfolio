@@ -388,16 +388,22 @@ const TPP_CSS = `
 .tpp-root *,.tpp-root *::before,.tpp-root *::after{box-sizing:border-box}
 .tpp-root :where(button){font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit}
 .tpp-root :where(button,a,textarea,input):focus-visible{outline:2px dashed currentColor;outline-offset:3px}
+.tpp-root :where(.tpp-tag,.tpp-luggage):focus-visible{outline-offset:-5px}
+.tpp-root :where(button,a){touch-action:manipulation}
+.tpp-root :where(.tpp-label:is(button,a),.tpp-brand,.tpp-link){min-height:44px;display:inline-flex;align-items:center}
 .tpp-svg{display:block;max-width:none}
 .tpp-fill{position:absolute;inset:0;width:100%;height:100%}
 .tpp-track{position:relative;width:100%}
 .tpp-stage{position:sticky;top:0;width:100%;overflow:clip;container-type:size;container-name:tpp;background:var(--tpp-deep)}
 .tpp-ch{position:absolute;inset:0;visibility:hidden}
 .tpp-ch[data-on]{visibility:visible}
-.tpp-in{position:absolute;inset:0;transform-origin:50% 55%;will-change:transform}
+.tpp-in{position:absolute;inset:0;transform-origin:50% 55%;perspective:1800px}
+.tpp-ch:not([data-on]) *{animation-play-state:paused !important}
 .tpp-up,.tpp-lo{position:absolute;left:0;right:0;top:-40px;bottom:-40px;will-change:transform}
-.tpp-up{z-index:2;transform-origin:50% 0}
-.tpp-lo{z-index:1;transform-origin:50% 100%}
+.tpp-up{z-index:2;transform-origin:50% calc(var(--seam) * 100%)}
+.tpp-lo{z-index:1;transform-origin:50% calc(var(--seam) * 100%)}
+.tpp-light{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent 30%,rgba(255,249,224,.35) 70%,rgba(8,14,26,.5))}
+.tpp-lo .tpp-light{background:linear-gradient(0deg,transparent 10%,rgba(8,14,26,.35) 80%,rgba(255,249,224,.3))}
 .tpp-sh,.tpp-fib,.tpp-shade{position:absolute;inset:0}
 .tpp-fib{background:var(--tpp-fiber)}
 .tpp-shade{background:rgba(8,14,26,.3)}
@@ -409,7 +415,7 @@ const TPP_CSS = `
 .tpp-lb{position:absolute;left:0;right:0;bottom:0;top:calc(var(--seam) * 100% + 16px)}
 .tpp-par{will-change:transform;transition:transform .25s ease-out}
 .tpp-root[data-mode=stack] .tpp-stage{position:relative;container-type:normal;background:none}
-.tpp-root[data-mode=stack] .tpp-ch{position:relative;inset:auto;visibility:visible;height:var(--tpp-h);container-type:size;container-name:tpp;overflow:clip}
+.tpp-root[data-mode=stack] .tpp-ch{position:relative;inset:auto;visibility:visible;height:max(var(--tpp-h),760px);container-type:size;container-name:tpp;overflow:clip;content-visibility:auto}
 
 .tpp-serif{font-family:var(--tpp-serif)}
 .tpp-hand{font-family:var(--tpp-hand)}
@@ -427,10 +433,17 @@ const TPP_CSS = `
 .tpp-link:hover,.tpp-link[aria-current=true]{opacity:1}
 .tpp-link::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:currentColor;transform:scaleX(0);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
 .tpp-link[aria-current=true]::after{transform:scaleX(1)}
-.tpp-count{display:none;font-size:11px;letter-spacing:.2em}
-.tpp-rail{position:absolute;right:clamp(10px,1.6cqw,22px);top:50%;z-index:40;display:flex;flex-direction:column;gap:12px;transform:translateY(-50%);color:var(--tpp-navc,#f3eee4)}
-.tpp-dot{display:block;width:9px;height:9px;border:1px solid currentColor;border-radius:99px;opacity:.6;transition:all .4s}
-.tpp-dot[aria-current=true]{background:currentColor;opacity:1;transform:scale(1.25)}
+.tpp-count{display:none;font-size:11px;letter-spacing:.12em;min-height:44px;padding:0 8px;border:1px solid currentColor;border-radius:3px}
+.tpp-index{inset:80px 16px auto auto;margin:0;width:min(320px,calc(100vw - 32px));padding:18px;background:var(--tpp-paper);color:var(--tpp-ink);border:1px solid rgba(38,54,79,.3);box-shadow:0 18px 60px rgba(8,14,26,.3);border-radius:3px}
+.tpp-index::backdrop{background:rgba(8,14,26,.28)}
+.tpp-index button{display:flex;width:100%;align-items:center;justify-content:space-between;min-height:52px;border-top:1px solid rgba(38,54,79,.18);font-family:var(--tpp-serif);font-size:24px}
+.tpp-index button[aria-current=true]{color:var(--tpp-accent)}
+.tpp-root[data-mode=stack] .tpp-nav{position:fixed;background:var(--tpp-paper);color:var(--tpp-ink);padding-top:8px;padding-bottom:8px}
+.tpp-rail{position:absolute;right:0;top:50%;z-index:40;display:flex;flex-direction:column;transform:translateY(-50%);color:var(--tpp-navc,#f3eee4)}
+.tpp-dot{display:grid;place-items:center;width:44px;height:44px;opacity:.65;transition:opacity .2s}
+.tpp-dot::after{content:"";width:9px;height:9px;border:1px solid currentColor;border-radius:99px;transition:transform .2s,background .2s}
+.tpp-dot[aria-current=true]{opacity:1}
+.tpp-dot[aria-current=true]::after{background:currentColor;transform:scale(1.25)}
 
 .tpp-tag{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;background:var(--tpp-paper);color:var(--tpp-ink);clip-path:polygon(0 8%,4% 0,30% 6%,58% 0,84% 5%,100% 0,98% 46%,100% 100%,70% 94%,40% 100%,12% 95%,0 100%,2% 52%);transition:transform .35s cubic-bezier(.2,.8,.2,1),background .3s}
 .tpp-tag:hover{transform:translateY(-3px) rotate(-1.5deg)}
@@ -458,7 +471,7 @@ const TPP_CSS = `
 
 .tpp-card3d{display:grid;perspective:1600px}
 .tpp-card3d>*{grid-area:1/1}
-.tpp-flip{display:grid;transition:transform .9s cubic-bezier(.3,.7,.2,1);transform-style:preserve-3d}
+.tpp-flip{display:grid;transition:transform .55s cubic-bezier(.23,1,.32,1);transform-style:preserve-3d}
 .tpp-flip>*{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .tpp-flip[data-back]{transform:rotateY(180deg)}
 .tpp-back{transform:rotateY(180deg)}
@@ -471,22 +484,26 @@ const TPP_CSS = `
 .tpp-envelope:hover{transform:rotate(-4deg) translateY(-4px)}
 .tpp-envelope:hover .tpp-letter{transform:translateY(-26px)}
 
-.tpp-polaroid{position:absolute;inset:0;padding:10px 10px 0;background:#f7f4ee;box-shadow:0 22px 40px -18px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.25);transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s}
-.tpp-polaroid[data-f="1"]{animation:tpp-flick1 .75s cubic-bezier(.3,.6,.2,1)}
-.tpp-polaroid[data-f="2"]{animation:tpp-flick2 .75s cubic-bezier(.3,.6,.2,1)}
+.tpp-project-stack{touch-action:pan-y;perspective:1000px}
+.tpp-polaroid{position:absolute;inset:0;padding:10px 10px 0;background:#f7f4ee;box-shadow:0 22px 40px -18px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.25);transition:transform .4s cubic-bezier(.23,1,.32,1),opacity .25s}
+.tpp-polaroid[data-f="1"]{animation:tpp-flick1 .45s cubic-bezier(.23,1,.32,1)}
+.tpp-polaroid[data-f="2"]{animation:tpp-flick2 .45s cubic-bezier(.23,1,.32,1)}
 @keyframes tpp-flick1{0%{translate:0 0;z-index:30}45%{translate:-70% -6%;z-index:30}55%{z-index:0}100%{translate:0 0;z-index:0}}
 @keyframes tpp-flick2{0%{translate:0 0;z-index:30}45%{translate:-70% -6%;z-index:30}55%{z-index:0}100%{translate:0 0;z-index:0}}
-.tpp-polaroid[data-in="1"]{animation:tpp-back1 .75s cubic-bezier(.3,.6,.2,1)}
-.tpp-polaroid[data-in="2"]{animation:tpp-back2 .75s cubic-bezier(.3,.6,.2,1)}
+.tpp-polaroid[data-in="1"]{animation:tpp-back1 .45s cubic-bezier(.23,1,.32,1)}
+.tpp-polaroid[data-in="2"]{animation:tpp-back2 .45s cubic-bezier(.23,1,.32,1)}
 @keyframes tpp-back1{0%{translate:0 0;z-index:0}45%{translate:-70% -6%;z-index:0}55%{z-index:30}100%{translate:0 0;z-index:30}}
 @keyframes tpp-back2{0%{translate:0 0;z-index:0}45%{translate:-70% -6%;z-index:0}55%{z-index:30}100%{translate:0 0;z-index:30}}
 .tpp-ncard{position:relative;background:#f4f1ea;color:var(--tpp-ink);border-radius:8px;padding:clamp(14px,1.8cqw,22px);box-shadow:0 20px 40px -20px rgba(0,0,0,.65)}
 .tpp-ncard::before{content:"";position:absolute;inset:5px;border:1px solid rgba(38,54,79,.35);border-radius:5px;pointer-events:none}
 .tpp-chip{display:inline-block;padding:3px 9px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(38,54,79,.35);border-radius:99px}
-.tpp-round{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:99px;border:1px solid currentColor;transition:background .3s,color .3s,transform .3s}
+.tpp-round{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:99px;border:1px solid currentColor;transition:background .2s,color .2s,transform .2s}
 .tpp-round:hover{background:#f3eee4;color:var(--tpp-deep);transform:scale(1.06)}
-.tpp-pip{width:22px;height:4px;border-radius:2px;background:currentColor;opacity:.3;transition:opacity .3s,width .3s}
-.tpp-pip[aria-current=true]{opacity:1;width:34px}
+.tpp-pip{display:grid;place-items:center;width:30px;height:44px;opacity:.4;transition:opacity .2s}
+.tpp-pip::after{content:"";width:16px;height:4px;border-radius:2px;background:currentColor;transition:transform .2s}
+.tpp-pip[aria-current=true]{opacity:1}
+.tpp-pip[aria-current=true]::after{transform:scaleX(1.5)}
+.tpp-project-controls{flex-wrap:wrap}
 .tpp-dash{stroke-dasharray:7 9;animation:tpp-march 1.6s linear infinite}
 @keyframes tpp-march{to{stroke-dashoffset:-32}}
 .tpp-tail{transform-box:view-box;transform-origin:140px 150px;transition:transform .6s cubic-bezier(.3,1.6,.4,1)}
@@ -507,9 +524,10 @@ const TPP_CSS = `
 .tpp-stamp-btn{position:relative;transition:transform .3s;opacity:.55}
 .tpp-stamp-btn[aria-pressed=true]{opacity:1;transform:rotate(-4deg) scale(1.08)}
 .tpp-stamp-btn:hover{opacity:1}
-.tpp-input{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(38,54,79,.3);padding:4px 0;font-family:var(--tpp-hand);font-size:clamp(15px,1.5cqw,20px);color:#2f4a76;outline:none}
+.tpp-input{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(38,54,79,.3);padding:4px 0;font-family:var(--tpp-hand);font-size:clamp(16px,1.5cqw,20px);color:#2f4a76;outline:none}
 .tpp-input::placeholder{color:rgba(47,74,118,.45)}
-.tpp-msg{width:100%;height:100%;resize:none;background:transparent;border:0;outline:none;padding:0;font-family:var(--tpp-hand);font-size:clamp(15px,1.5cqw,20px);line-height:1.5em;color:#2f4a76}
+.tpp-msg{width:100%;height:100%;resize:none;background:transparent;border:0;outline:none;padding:0;font-family:var(--tpp-hand);font-size:clamp(16px,1.5cqw,20px);line-height:1.5em;color:#2f4a76}
+.tpp-input:focus-visible,.tpp-msg:focus-visible{outline:2px solid #3a5d96;outline-offset:4px}
 .tpp-msg::placeholder{color:rgba(47,74,118,.45)}
 .tpp-shake{animation:tpp-shake .45s}
 .tpp-shake2{animation:tpp-shake2 .45s}
@@ -528,6 +546,15 @@ const TPP_CSS = `
 .tpp-wide{display:block}
 .tpp-wide-i{display:inline}
 .tpp-narrow{display:none}
+@media (max-width:760px){
+.tpp-links{display:none}
+.tpp-count{display:block}
+}
+@media (hover:none){
+.tpp-tag:hover,.tpp-note:hover,.tpp-envelope:hover,.tpp-luggage:hover{transform:none}
+.tpp-envelope:hover .tpp-letter{transform:none}
+.tpp-round:hover{transform:none;background:transparent;color:inherit}
+}
 @container tpp (max-width:760px){
 .tpp-links{display:none}
 .tpp-count{display:block}
@@ -1307,6 +1334,7 @@ function Chapter({ index, seam, seed, label, last, setRef, uid, upperBg, upper, 
                 {lowerBg}
                 <div className="tpp-lb">{lower}</div>
               </div>
+              <div className="tpp-light" />
             </div>
           </div>
         )}
@@ -1322,6 +1350,7 @@ function Chapter({ index, seam, seed, label, last, setRef, uid, upperBg, upper, 
               {upperBg}
               <div className="tpp-ub">{upper}</div>
             </div>
+            {!last && <div className="tpp-light" />}
           </div>
         </div>
       </div>
@@ -1341,29 +1370,46 @@ function Pop({ d = 0, r = 0, className = "", style, children }: { d?: number; r?
 /**
  * Writes one chapter's tear straight onto its layers: the top sheet lifts by
  * `s`, the bottom one drops, and with `p` < 1 the chapter is still growing out
- * of the gap with its pieces landing in turn. Transforms only, so a frame never
- * restyles the drawings inside.
+ * of the gap with its pieces landing in turn. Cache the layers once and avoid
+ * touching pieces that have already landed; no layout reads in the frame loop.
  */
-function paint(el: HTMLElement, s: number, p: number, H: number) {
+function createPainter(el: HTMLElement) {
   const seam = Number(el.dataset.seam) || 1
   const inn = el.firstElementChild as HTMLElement | null
-  if (!inn) return
+  if (!inn) return () => undefined
   const lo = inn.querySelector(":scope > .tpp-lo") as HTMLElement | null
   const up = inn.querySelector(":scope > .tpp-up") as HTMLElement | null
-  inn.style.transform = p < 1 ? "translateY(" + fmt((1 - p) * 3) + "%)" : ""
-  if (up) up.style.transform = s > 0 ? "translateY(" + fmt(-s * (seam * (H + 80) + 70)) + "px) rotate(" + (-1.4 * s).toFixed(3) + "deg)" : ""
-  if (lo) lo.style.transform = s > 0 ? "translateY(" + fmt(s * ((1 - seam) * (H + 80) + 80)) + "px) rotate(" + (1 * s).toFixed(3) + "deg)" : ""
-  el.querySelectorAll(".tpp-pop").forEach((node) => {
-    const pop = node as HTMLElement
-    const q = clamp((p - (Number(pop.dataset.d) || 0)) * 2.6, 0, 1)
-    if (q >= 1) {
-      pop.style.opacity = ""
-      pop.style.transform = ""
-    } else {
-      pop.style.opacity = q.toFixed(3)
-      pop.style.transform = "translateY(" + fmt((1 - q) * 46) + "px) rotate(" + fmt((1 - q) * (Number(pop.dataset.r) || 0)) + "deg) scale(" + (0.94 + 0.06 * q).toFixed(3) + ")"
+  const lights = Array.from(inn.querySelectorAll<HTMLElement>(".tpp-light"))
+  const pops = Array.from(el.querySelectorAll<HTMLElement>(".tpp-pop"), pop => ({ pop, d: Number(pop.dataset.d) || 0, r: Number(pop.dataset.r) || 0, q: -1 }))
+  let lastS = -1
+  let lastP = -1
+  let lastH = -1
+  return (s: number, p: number, H: number) => {
+    if (s !== lastS || H !== lastH) {
+      lastS = s
+      lastH = H
+      const bend = Math.sin(s * Math.PI)
+      if (up) up.style.transform = s > 0 ? `translate3d(0,${fmt(-s * (seam * (H + 80) + 70))}px,${fmt(bend * 24)}px) rotateX(${fmt(-bend * 12)}deg) rotate(${-1.4 * s}deg)` : ""
+      if (lo) lo.style.transform = s > 0 ? `translate3d(0,${fmt(s * ((1 - seam) * (H + 80) + 80))}px,${fmt(bend * 12)}px) rotateX(${fmt(bend * 9)}deg) rotate(${s}deg)` : ""
+      lights.forEach(light => { light.style.opacity = (bend * .65).toFixed(3) })
     }
-  })
+    if (p === lastP) return
+    lastP = p
+    inn.style.transform = p < 1 ? "translateY(" + fmt((1 - p) * 3) + "%)" : ""
+    pops.forEach(piece => {
+      const { pop, d, r } = piece
+      const q = clamp((p - d) * 2.6, 0, 1)
+      if (q === piece.q) return
+      piece.q = q
+      if (q >= 1) {
+        pop.style.opacity = ""
+        pop.style.transform = ""
+      } else {
+        pop.style.opacity = q.toFixed(3)
+        pop.style.transform = "translateY(" + fmt((1 - q) * 46) + "px) rotate(" + fmt((1 - q) * r) + "deg) scale(" + (0.94 + 0.06 * q).toFixed(3) + ")"
+      }
+    })
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1422,7 +1468,25 @@ export default function TornPostcardPortfolio({
 
   const [active, setActive] = React.useState(0)
   const [reduced, setReduced] = React.useState(false)
-  const stack = reduced
+  const [compact, setCompact] = React.useState(false)
+  const stack = reduced || compact
+  const activeRef = React.useRef(0)
+  const modeRef = React.useRef(stack)
+
+  const go = React.useCallback(
+    (i: number) => {
+      if (stack) {
+        chRefs.current[i]?.scrollIntoView({ behavior: "instant", block: "start" })
+        return
+      }
+      const t = trackRef.current
+      const st = stageRef.current
+      if (!t || !st) return
+      const top = t.getBoundingClientRect().top + window.scrollY + i * st.offsetHeight * scrollPerChapter
+      window.scrollTo({ top: Math.ceil(top) + 1, behavior: modeRef.current !== stack ? "instant" : "smooth" })
+    },
+    [stack, scrollPerChapter],
+  )
 
   React.useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -1431,20 +1495,41 @@ export default function TornPostcardPortfolio({
     mq.addEventListener("change", on)
     return () => mq.removeEventListener("change", on)
   }, [])
+  React.useEffect(() => {
+    const mq = window.matchMedia("(max-width: 760px) and (max-height: 700px), (max-height: 560px)")
+    const on = () => setCompact(mq.matches)
+    on()
+    mq.addEventListener("change", on)
+    return () => mq.removeEventListener("change", on)
+  }, [])
 
   /* ---- scroll → tear ---- */
   React.useEffect(() => {
     const els = chRefs.current
+    const painters = els.map(el => el ? createPainter(el) : null)
+    if (modeRef.current !== stack) {
+      go(activeRef.current)
+      modeRef.current = stack
+    }
     if (stack) {
       stageRef.current?.setAttribute("data-tone", "dark")
-      els.forEach((el) => {
+      els.forEach((el, i) => {
         if (!el) return
-        paint(el, 0, 1, 0)
+        painters[i]?.(0, 1, 0)
         el.setAttribute("data-on", "")
         el.inert = false
         el.removeAttribute("aria-hidden")
       })
-      return
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            activeRef.current = els.indexOf(entry.target as HTMLDivElement)
+            setActive(activeRef.current)
+          }
+        })
+      }, { rootMargin: "-20% 0px -60% 0px" })
+      els.forEach(el => { if (el) observer.observe(el) })
+      return () => observer.disconnect()
     }
     let target = 0
     let cur = 0
@@ -1456,28 +1541,29 @@ export default function TornPostcardPortfolio({
     let dir = 1
     let touching = false
     let timer = 0
+    let H = stageRef.current?.offsetHeight || window.innerHeight
+    let trackTop = (trackRef.current?.getBoundingClientRect().top || 0) + window.scrollY
+    const hasScrollEnd = "onscrollend" in document
 
-    const unit = () => (stageRef.current ? stageRef.current.offsetHeight : window.innerHeight) * scrollPerChapter
+    const unit = () => H * scrollPerChapter
     const measure = () => {
       const t = trackRef.current
       if (!t) return
-      target = clamp(-t.getBoundingClientRect().top / unit(), 0, N - 1)
+      target = clamp((window.scrollY - trackTop) / unit(), 0, N - 1)
     }
     const prev: { s: number; p: number }[] = els.map(() => ({ s: -1, p: -1 }))
     const apply = (s: number) => {
       const f = frame(s, N, HOLD)
-      const H = stageRef.current ? stageRef.current.offsetHeight : window.innerHeight
       f.chapters.forEach((c, i) => {
         const el = els[i]
         if (!el) return
-        if (c.on) el.setAttribute("data-on", "")
-        else el.removeAttribute("data-on")
+        if (c.on !== el.hasAttribute("data-on")) el.toggleAttribute("data-on", c.on)
         if (!c.on && prev[i].s === 0 && prev[i].p === 0) return
         const sv = c.on ? c.s : 0
         const pv = c.on ? c.p : 0
         if (prev[i].s === sv && prev[i].p === pv) return
         prev[i] = { s: sv, p: pv }
-        paint(el, sv, pv, H)
+        painters[i]?.(sv, pv, H)
       })
       const under = f.split > 0.82 ? f.k + 1 : f.k
       if (under !== toneAt && stageRef.current) {
@@ -1486,6 +1572,7 @@ export default function TornPostcardPortfolio({
       }
       if (f.active !== shown) {
         shown = f.active
+        activeRef.current = shown
         els.forEach((el, i) => {
           if (!el) return
           el.inert = i !== shown
@@ -1516,7 +1603,7 @@ export default function TornPostcardPortfolio({
       if (!t) return
       const goal = snapTarget(target, N, HOLD, dir)
       if (goal === null) return
-      const top = t.getBoundingClientRect().top + window.scrollY + goal * unit()
+      const top = trackTop + goal * unit()
       window.scrollTo({ top: Math.ceil(top) + 1, behavior: "smooth" })
     }
     const onScroll = () => {
@@ -1525,33 +1612,53 @@ export default function TornPostcardPortfolio({
       lastY = y
       kick()
       window.clearTimeout(timer)
-      timer = window.setTimeout(settle, 170)
+      if (!hasScrollEnd) timer = window.setTimeout(settle, 350)
     }
+    const onScrollEnd = () => {
+      window.clearTimeout(timer)
+      timer = window.setTimeout(settle, 220)
+    }
+    const onInput = () => window.clearTimeout(timer)
     const onTouchStart = () => {
       touching = true
+      onInput()
     }
     const onTouchEnd = () => {
       touching = false
       window.clearTimeout(timer)
-      timer = window.setTimeout(settle, 260)
+      if (!hasScrollEnd) timer = window.setTimeout(settle, 350)
     }
 
     measure()
     cur = target
     apply(cur)
+    const ro = new ResizeObserver(() => {
+      H = stageRef.current?.offsetHeight || window.innerHeight
+      trackTop = (trackRef.current?.getBoundingClientRect().top || 0) + window.scrollY
+      prev.forEach(p => { p.s = -1; p.p = -1 })
+      kick()
+    })
+    if (stageRef.current) ro.observe(stageRef.current)
     addEventListener("scroll", onScroll, { passive: true })
-    addEventListener("resize", kick)
+    document.addEventListener("scrollend", onScrollEnd)
+    addEventListener("wheel", onInput, { passive: true })
+    addEventListener("keydown", onInput)
     addEventListener("touchstart", onTouchStart, { passive: true })
     addEventListener("touchend", onTouchEnd, { passive: true })
+    addEventListener("touchcancel", onTouchEnd, { passive: true })
     return () => {
       cancelAnimationFrame(raf)
       window.clearTimeout(timer)
+      ro.disconnect()
       removeEventListener("scroll", onScroll)
-      removeEventListener("resize", kick)
+      document.removeEventListener("scrollend", onScrollEnd)
+      removeEventListener("wheel", onInput)
+      removeEventListener("keydown", onInput)
       removeEventListener("touchstart", onTouchStart)
       removeEventListener("touchend", onTouchEnd)
+      removeEventListener("touchcancel", onTouchEnd)
     }
-  }, [stack, smooth, snap, scrollPerChapter])
+  }, [stack, smooth, snap, scrollPerChapter, go])
 
   /* ---- paper grain, painted once ---- */
   React.useEffect(() => {
@@ -1581,7 +1688,8 @@ export default function TornPostcardPortfolio({
   /* ---- pointer parallax ---- */
   React.useEffect(() => {
     const root = rootRef.current
-    if (!root || stack) return
+    if (!root || stack || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return
+    const layers = root.querySelectorAll<HTMLElement>(".tpp-par")
     let raf = 0
     let mx = 0
     let my = 0
@@ -1592,35 +1700,26 @@ export default function TornPostcardPortfolio({
       if (!raf)
         raf = requestAnimationFrame(() => {
           raf = 0
-          root.querySelectorAll(".tpp-ch[data-on] .tpp-par").forEach((node) => {
-            const el = node as HTMLElement
+          layers.forEach((el) => {
+            if (!el.closest(".tpp-ch[data-on]")) return
             const dp = Number(el.dataset.dp) || 0
             el.style.transform = "translate3d(" + fmt(mx * dp) + "px," + fmt(my * dp * 0.5) + "px,0)"
           })
         })
     }
+    const reset = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+      layers.forEach(el => { el.style.transform = "" })
+    }
     root.addEventListener("pointermove", onMove)
+    root.addEventListener("pointerleave", reset)
     return () => {
       root.removeEventListener("pointermove", onMove)
-      cancelAnimationFrame(raf)
+      root.removeEventListener("pointerleave", reset)
+      reset()
     }
   }, [stack])
-
-  const go = React.useCallback(
-    (i: number) => {
-      if (stack) {
-        const el = chRefs.current[i]
-        if (el) el.scrollIntoView({ behavior: "auto", block: "start" })
-        return
-      }
-      const t = trackRef.current
-      const st = stageRef.current
-      if (!t || !st) return
-      const top = t.getBoundingClientRect().top + window.scrollY + i * st.offsetHeight * scrollPerChapter
-      window.scrollTo({ top: Math.ceil(top) + 1, behavior: "smooth" })
-    },
-    [stack, scrollPerChapter],
-  )
 
   /* ---- chapter state ---- */
   const [flipped, setFlipped] = React.useState(false)
@@ -1633,7 +1732,16 @@ export default function TornPostcardPortfolio({
   const [sent, setSent] = React.useState(false)
   const [shake, setShake] = React.useState(0)
   const [copied, setCopied] = React.useState(false)
+  const [copyError, setCopyError] = React.useState(false)
+  const [messageError, setMessageError] = React.useState(false)
   const msgRef = React.useRef(null as HTMLTextAreaElement | null)
+  const flipRef = React.useRef<HTMLDivElement>(null)
+  const gesture = React.useRef({ x: 0, y: 0, swiped: false })
+
+  const turn = (back: boolean) => {
+    setFlipped(back)
+    requestAnimationFrame(() => flipRef.current?.querySelector<HTMLButtonElement>(`[data-side=${back ? "back" : "front"}] button`)?.focus({ preventScroll: true }))
+  }
 
   const step = (delta: number) => {
     const n = list.length
@@ -1650,6 +1758,7 @@ export default function TornPostcardPortfolio({
 
   const send = () => {
     if (!message.trim()) {
+      setMessageError(true)
       setShake((s) => s + 1)
       msgRef.current?.focus({ preventScroll: true })
       return
@@ -1660,12 +1769,15 @@ export default function TornPostcardPortfolio({
   }
 
   const copy = () => {
-    navigator.clipboard?.writeText(email).then(
+    setCopyError(false)
+    setMessageError(false)
+    if (!navigator.clipboard) { setCopyError(true); return }
+    navigator.clipboard.writeText(email).then(
       () => {
         setCopied(true)
         window.setTimeout(() => setCopied(false), 1600)
       },
-      () => undefined,
+      () => setCopyError(true),
     )
   }
 
@@ -1860,14 +1972,14 @@ export default function TornPostcardPortfolio({
               </Stamp>
             </div>
           </div>
-          <div className="tpp-rule tpp-hw mt-3 min-h-0 flex-1 overflow-clip" style={{ textIndent: "2.5em" }}>
+          <div className="tpp-rule tpp-hw mt-3 min-h-0 flex-1 overflow-y-auto" style={{ textIndent: "2.5em" }}>
             {ab.text}
           </div>
           <div className="mt-2 flex items-center justify-between gap-2">
             <span className="tpp-hand" style={{ color: "#2f4a76", fontSize: 18 }}>
               — {name}
             </span>
-            <button type="button" className="tpp-label flex items-center gap-2" style={{ fontSize: 10, color: pal.accent }} onClick={() => setFlipped(true)}>
+            <button type="button" className="tpp-label flex items-center gap-2" style={{ fontSize: 10, color: pal.accent }} onClick={() => turn(true)}>
               Turn over ↻
             </button>
           </div>
@@ -1919,7 +2031,7 @@ export default function TornPostcardPortfolio({
           <a href={"mailto:" + email} className="tpp-label" style={{ fontSize: 10, color: pal.accent }}>
             {email}
           </a>
-          <button type="button" className="tpp-label" style={{ fontSize: 10, color: pal.accent }} onClick={() => setFlipped(false)}>
+          <button type="button" className="tpp-label" style={{ fontSize: 10, color: pal.accent }} onClick={() => turn(false)}>
             ↺ Front
           </button>
         </div>
@@ -1953,11 +2065,11 @@ export default function TornPostcardPortfolio({
           </Pop>
           <Pop d={0.12} r={-3}>
             <div className="tpp-card3d tpp-postcard" style={{ transform: "rotate(-1.2deg)" }}>
-              <div className="tpp-flip" data-back={flipped ? "" : undefined}>
-                <div aria-hidden={flipped} style={{ minHeight: 0 }}>
+              <div ref={flipRef} className="tpp-flip" data-back={flipped ? "" : undefined}>
+                <div data-side="front" aria-hidden={flipped} inert={flipped} style={{ minHeight: 0 }}>
                   {postcardFront}
                 </div>
-                <div className="tpp-back" aria-hidden={!flipped} style={{ minHeight: 0 }}>
+                <div className="tpp-back" data-side="back" aria-hidden={!flipped} inert={!flipped} style={{ minHeight: 0 }}>
                   {postcardBack}
                 </div>
               </div>
@@ -2041,8 +2153,10 @@ export default function TornPostcardPortfolio({
             className="relative mx-auto flex w-full min-h-0 flex-1 items-center justify-center gap-[clamp(20px,5cqw,80px)] px-[clamp(16px,5cqw,64px)]"
             style={{ flexDirection: narrow ? "column" : "row", maxWidth: 1100, paddingBottom: narrow ? 8 : "6cqh", gap: narrow ? 14 : undefined }}
             onKeyDown={(e) => {
-              if (e.key === "ArrowRight") step(1)
-              if (e.key === "ArrowLeft") step(-1)
+              if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                e.preventDefault()
+                step(e.key === "ArrowRight" ? 1 : -1)
+              }
             }}
           >
             <svg className="tpp-svg tpp-wide pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -2051,9 +2165,24 @@ export default function TornPostcardPortfolio({
             <Pop d={0.1} r={-6}>
               <button
                 type="button"
-                className="relative block"
+                className="tpp-project-stack relative block"
                 aria-label={"Next project (showing " + cur.name + ")"}
-                onClick={() => step(1)}
+                onClick={() => { if (!gesture.current.swiped) step(1); gesture.current.swiped = false }}
+                onPointerDown={e => {
+                  if (!e.isPrimary || e.button !== 0) return
+                  gesture.current = { x: e.clientX, y: e.clientY, swiped: false }
+                  e.currentTarget.setPointerCapture(e.pointerId)
+                }}
+                onPointerUp={e => {
+                  if (!e.isPrimary || e.button !== 0) return
+                  const dx = e.clientX - gesture.current.x
+                  const dy = e.clientY - gesture.current.y
+                  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                    gesture.current.swiped = true
+                    step(dx < 0 ? 1 : -1)
+                  }
+                }}
+                onPointerCancel={() => { gesture.current.swiped = false }}
                 style={{ width: narrow ? "min(50cqw, calc(34cqh * .88))" : "min(28cqw, calc(54cqh * .88), 360px)", aspectRatio: "0.86" }}
               >
                 {polaroids}
@@ -2101,7 +2230,7 @@ export default function TornPostcardPortfolio({
                   )}
                 </div>
               </div>
-              <div className="mt-4 flex items-center justify-between gap-3" style={{ color: "#f3eee4" }}>
+              <div className="tpp-project-controls mt-3 flex items-center justify-between gap-3" style={{ color: "#f3eee4" }}>
                 <div className="flex items-center gap-2">
                   <button type="button" className="tpp-round" aria-label="Previous project" onClick={() => step(-1)}>
                     ←
@@ -2110,7 +2239,7 @@ export default function TornPostcardPortfolio({
                     →
                   </button>
                 </div>
-                <div className="flex items-center gap-1.5" role="group" aria-label="Projects">
+                <div className="flex items-center gap-1" role="group" aria-label="Projects">
                   {list.map((p, j) => (
                     <button
                       key={j}
@@ -2175,8 +2304,11 @@ export default function TornPostcardPortfolio({
             ref={mapRef}
             className="relative mx-[clamp(16px,5cqw,64px)] mb-[3cqh] mt-[2cqh] min-h-0 flex-1"
             onKeyDown={(e) => {
-              if (e.key === "ArrowRight" || e.key === "ArrowDown") setStop((s) => Math.min(stops.length - 1, s + 1))
-              if (e.key === "ArrowLeft" || e.key === "ArrowUp") setStop((s) => Math.max(0, s - 1))
+              if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) {
+                e.preventDefault()
+                const next = clamp(stop + (e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1), 0, stops.length - 1)
+                e.currentTarget.querySelectorAll<HTMLButtonElement>(".tpp-pin")[next]?.focus({ preventScroll: true })
+              }
             }}
           >
             <svg className="tpp-svg tpp-fill" viewBox={"0 0 " + fmt(trail.w) + " 100"} preserveAspectRatio="none" aria-hidden="true" style={{ overflow: "visible" }}>
@@ -2289,7 +2421,7 @@ export default function TornPostcardPortfolio({
           <Pop d={0} className="px-5 text-center">
             <h2 className="tpp-h tpp-sec-h">{contactTitle}</h2>
             <p className="tpp-label mt-3" style={{ opacity: 0.6 }}>
-              It goes straight to {email}
+              Opens an email draft to {email}
             </p>
           </Pop>
           <Pop d={0.12} r={-2} className="mt-[3cqh] w-full px-4" style={{ maxWidth: 760 }}>
@@ -2310,9 +2442,13 @@ export default function TornPostcardPortfolio({
                       ref={msgRef}
                       className="tpp-msg"
                       value={message}
+                      aria-invalid={messageError}
+                      aria-describedby={uid + "-contact-status"}
+                      maxLength={3000}
                       onChange={(e) => {
                         setMessage(e.target.value)
                         setSent(false)
+                        setMessageError(false)
                       }}
                       placeholder={"Dear " + name.split(" ")[0] + ", I have a project in mind…"}
                     />
@@ -2349,7 +2485,7 @@ export default function TornPostcardPortfolio({
                     <input className="tpp-input" type="email" value={from} onChange={(e) => setFrom(e.target.value)} placeholder="you@studio.com" autoComplete="email" />
                   </label>
                   <div className="mt-auto flex items-center justify-between gap-3">
-                    <button type="button" className="tpp-label" style={{ fontSize: 9.5, opacity: 0.7 }} onClick={copy}>
+                    <button type="button" className="tpp-label" style={{ fontSize: 9.5, opacity: 0.9 }} onClick={copy}>
                       {copied ? "Copied ✓" : "Copy email"}
                     </button>
                     <button type="submit" className="tpp-tag" style={{ background: pal.ink, color: "#f3eee4" }}>
@@ -2364,8 +2500,8 @@ export default function TornPostcardPortfolio({
                 </div>
               )}
             </form>
-            <p className="tpp-hand mt-2 text-center" style={{ color: "#e8e4da", fontSize: 16, minHeight: "1.2em" }} aria-live="polite">
-              {sent ? "Your mail app should be opening — thank you!" : ""}
+            <p id={uid + "-contact-status"} className="tpp-hand mt-2 text-center" style={{ color: "#e8e4da", fontSize: 16, minHeight: "1.2em" }} role="status">
+              {messageError ? "Write a short message first." : copyError ? "Copy unavailable — you can select the email address above." : copied ? "Email address copied." : sent ? "Finish sending in your email app." : ""}
             </p>
           </Pop>
           <Pop d={0.25} className="mt-[1.5cqh] flex flex-wrap justify-center gap-3 px-4">
@@ -2417,12 +2553,20 @@ export default function TornPostcardPortfolio({
               ))}
             </div>
             <div className="flex items-center gap-4">
-              <span className="tpp-count" aria-hidden="true">
-                {String(active + 1).padStart(2, "0")} / 05
-              </span>
+              <button type="button" className="tpp-count" aria-label="Choose chapter" popoverTarget={uid + "-index"}>
+                {String(active + 1).padStart(2, "0")} / 05 ≡
+              </button>
               <button type="button" aria-label={name + " — back to the cover"} onClick={() => go(0)}>
                 <Logo mark={mark} since={since} />
               </button>
+            </div>
+            <div id={uid + "-index"} className="tpp-index" popover="auto" role="navigation" aria-label="Chapter index">
+              <p className="tpp-label mb-3">Field journal · {name}</p>
+              {labels.map((l, i) => (
+                <button key={l} type="button" aria-current={i === active} popoverTarget={uid + "-index"} popoverTargetAction="hide" onClick={() => go(i)}>
+                  <span>{l}</span><span className="tpp-label">{String(i + 1).padStart(2, "0")} ↗</span>
+                </button>
+              ))}
             </div>
           </nav>
           {!stack && (

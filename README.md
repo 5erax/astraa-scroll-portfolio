@@ -36,7 +36,21 @@ Domain production chính thức: `astraa1.vercel.app`, được gắn cố đị
 
 ## Kiểm tra
 
-`npm run check` kiểm tra TypeScript; `npm run build` tạo bản production. Trình duyệt đã được kiểm tra với năm chương, bảy liên kết dự án, postcard lật, hành trình, form trống, ảnh trên mobile và reduced motion.
+`npm run check` kiểm tra TypeScript; `npm run build` tạo bản production.
+
+Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` để kiểm tra tương tác bằng Chromium headless trong một browser riêng. Script dùng Playwright đã cài trong runtime Codex; ở máy khác có thể chỉ định đường dẫn module Playwright đã cài bằng biến `PLAYWRIGHT_MODULE`. Ảnh kiểm tra được lưu trong `outputs/` và không commit. Check không gửi email hoặc mở liên kết bên ngoài.
+
+Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
+
+## Motion & UX
+
+Giấy nghiêng trong phối cảnh và thay đổi ánh sáng theo độ mở của vết xé. Vòng animation cache các layer và kích thước, bỏ qua attribute/style không đổi, dừng khi đã bắt kịp vị trí cuộn. Hiệu ứng của chương ẩn được pause; parallax chỉ chạy với chuột và reset khi rời trang.
+
+Snap chờ `scrollend` và một khoảng nghỉ ngắn, hủy khi có input mới; browser cũ dùng debounce. Mobile có chapter index bằng native popover, hỗ trợ Escape và chạm ngoài để đóng. Gallery hỗ trợ vuốt ngang, phím mũi tên và nút lớn hơn. Reduced motion hoặc viewport thấp dùng cuộn thường để vẫn đọc được nội dung; đổi chế độ giữ nguyên chương đang xem.
+
+Form báo lỗi trống và lỗi copy email qua live status, dùng kiểm tra email native, giới hạn message 3.000 ký tự và font input tối thiểu 16 px. Việc gửi thư vẫn thực hiện trong ứng dụng email của người dùng.
+
+Đo bằng Chromium headless, desktop 1440×900 và CPU throttle 4× với cùng 24 lượt wheel: thời gian JavaScript giảm từ khoảng 0,39 s xuống 0,29 s; style recalculation giảm từ khoảng 1,63 s xuống 1,21 s. P95 frame vẫn khoảng 83 ms ở điều kiện này, nên đây là giảm chi phí xử lý, chưa phải đảm bảo 60 fps trên máy yếu. SVG raster/paint vẫn là phần tốn thời gian trong trace.
 
 ## Nguồn
 
