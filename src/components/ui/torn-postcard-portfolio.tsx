@@ -1215,7 +1215,7 @@ function SnapshotGallery({ photos }: { photos: NonNullable<PostcardAbout["snapsh
     <button type="button" className="tpp-mini-gallery" data-animate={animate ? "" : undefined} aria-label="Next personal photo" aria-describedby={description}
       onClick={event => { setAnimate(event.detail > 0); setIndex(i => wrap(i + 1, photos.length)) }}
       onKeyDown={event => {
-        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return
+        if (event.altKey || event.ctrlKey || event.metaKey || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return
         event.preventDefault()
         setAnimate(false)
         setIndex(i => wrap(i + (event.key === "ArrowRight" ? 1 : -1), photos.length))

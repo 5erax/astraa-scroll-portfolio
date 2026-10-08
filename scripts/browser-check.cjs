@@ -114,6 +114,14 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       await gallery.click();
     }
     assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/team.webp', 'The gallery must wrap back to the team photo.');
+    for (const modifier of ['altKey', 'ctrlKey', 'metaKey']) {
+      assert.equal(await gallery.evaluate((node, modifier) => {
+        const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', [modifier]: true, bubbles: true, cancelable: true });
+        node.dispatchEvent(event);
+        return event.defaultPrevented;
+      }, modifier), false, 'The gallery must preserve browser shortcuts.');
+      assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/team.webp');
+    }
     await gallery.focus();
     await page.keyboard.press('ArrowLeft');
     assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/team-session.webp');
