@@ -42,6 +42,16 @@ Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` đ
 
 Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
 
+## Music stamp
+
+Nút **Music** trong thanh điều hướng mở thẻ giấy nhỏ, phát file **Buồn vương mi — htingale** do Astraa cung cấp. File gốc được sao chép nguyên vẹn thành `public/media/buon-vuong-mi.mp3` (khoảng 1,16 MB); không tải từ dịch vụ âm nhạc bên ngoài.
+
+Player dùng `<audio>` native, `preload="none"`, bắt đầu bằng Play và lặp lại bài. Có Pause, tua bài, Mute và chỉnh volume; âm lượng khởi đầu 35% khi browser hỗ trợ. Nhạc tiếp tục giữa năm chương; refresh không tự phát lại. Trạng thái phát dựa trên event của media và kết quả `play()`, có báo lỗi và thử lại khi tải thất bại hoặc browser chặn phát. Tham khảo [HTMLMediaElement.play](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play).
+
+Nếu browser không cho phép đặt volume bằng JavaScript, UI dùng thông báo điều chỉnh âm lượng trên thiết bị thay cho slider không hoạt động; kiểm tra trực tiếp khả năng của API, không đoán theo user agent. Xem [tương thích volume](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume). Đĩa chỉ quay khi đang phát có âm thanh và dừng chuyển động với reduced motion. Thẻ nhạc dùng native popover, hỗ trợ focus vào Play, Escape và chạm ngoài để đóng.
+
+Browser check xác nhận file không tải trước Play trong Chromium, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, giữ playback khi đổi chương, focus/Escape, layout mobile 320/390 px, lỗi mạng/thử lại, playback bị chặn và volume API chỉ đọc. Không thêm thư viện audio hoặc visualization.
+
 ## Motion & UX
 
 Giấy nghiêng trong phối cảnh và thay đổi ánh sáng theo độ mở của vết xé. Vòng animation cache các layer và kích thước, bỏ qua attribute/style không đổi, dừng khi đã bắt kịp vị trí cuộn. Hiệu ứng của chương ẩn được pause; parallax chỉ chạy với chuột và reset khi rời trang.

@@ -12,6 +12,7 @@
 // type is the system stack, and nothing loads at runtime. Swap any picture for
 // your own photo through props.
 import * as React from "react"
+import MusicPlayer from "./music-player"
 
 export type SceneKind = "dawn" | "lake" | "sun" | "forest" | "peak" | "night" | "river"
 
@@ -2552,7 +2553,8 @@ export default function TornPostcardPortfolio({
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <MusicPlayer />
               <button type="button" className="tpp-count" aria-label="Choose chapter" popoverTarget={uid + "-index"}>
                 {String(active + 1).padStart(2, "0")} / 05 ≡
               </button>
