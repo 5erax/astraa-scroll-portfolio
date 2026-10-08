@@ -13,6 +13,7 @@
 // your own photo through props.
 import * as React from "react"
 import MusicPlayer from "./music-player"
+import ProfileViews from "./profile-views"
 
 export type SceneKind = "dawn" | "lake" | "sun" | "forest" | "peak" | "night" | "river"
 
@@ -419,9 +420,10 @@ const TPP_CSS = `
 .tpp-entry-pocket{position:absolute;inset:0;z-index:5;clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%);background:linear-gradient(33deg,#e7ddcc 49.7%,#c5b69e 50%,#eee5d6 50.3%);border-radius:3px}
 .tpp-entry-fold{position:absolute;inset:0;z-index:6;clip-path:polygon(0 100%,50% 42%,100% 100%);background:linear-gradient(180deg,#e0d5c1,#efe7d8);border-radius:3px}
 .tpp-entry-flap{position:absolute;left:0;right:0;top:0;height:58%;z-index:8;transform-origin:50% 0;transform-style:preserve-3d;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(#f4ede0,#dbcfba);border-top:1px solid rgba(255,255,255,.7);transition:transform .25s cubic-bezier(.23,1,.32,1),z-index 0s .2s}
+.tpp-entry-flap::before{content:"";position:absolute;inset:6px 7px auto;height:2px;background:repeating-linear-gradient(135deg,#637f9d 0 8px,transparent 8px 16px,#b4673d 16px 24px,transparent 24px 32px);opacity:.6;pointer-events:none}
 .tpp-entry-seal{position:absolute;left:50%;top:48%;z-index:9;display:grid;place-items:center;width:56px;height:56px;transform:translate(-50%,-50%) rotate(-8deg);border-radius:48% 52% 46% 54%;background:radial-gradient(circle at 35% 25%,#c2845b,#8b472d);color:#f2dfc4;border:3px double #d0996d;box-shadow:0 3px 4px rgba(67,32,22,.3),inset 0 1px 3px #efbf8877,inset 0 -2px 4px #4f201e77;font-family:var(--tpp-serif);font-size:26px;text-shadow:0 1px 1px #572913;overflow:clip;transition:transform .25s cubic-bezier(.23,1,.32,1)}
 .tpp-entry-seal::after{content:"";position:absolute;inset:-20px;background:linear-gradient(110deg,transparent 35%,#fff4cc55 48%,transparent 61%);transform:translateX(-100%);transition:transform .5s cubic-bezier(.23,1,.32,1);pointer-events:none}
-.tpp-entry-airmail{position:absolute;inset:7px;z-index:10;border:2px solid transparent;border-image:repeating-linear-gradient(135deg,#637f9d 0 8px,transparent 8px 16px,#b4673d 16px 24px,transparent 24px 32px) 2;opacity:.6;pointer-events:none}
+.tpp-entry-airmail{position:absolute;inset:7px;z-index:10;border:2px solid transparent;border-top:0;border-image:repeating-linear-gradient(135deg,#637f9d 0 8px,transparent 8px 16px,#b4673d 16px 24px,transparent 24px 32px) 2;opacity:.6;pointer-events:none}
 .tpp-entry-stamp{position:absolute;right:6%;top:8%;z-index:9;width:48px;height:62px;background:#f9f5ea;padding:5px;transform:rotate(5deg);box-shadow:0 2px 3px #2c201e33;clip-path:polygon(0 0,10% 3%,20% 0,30% 3%,40% 0,50% 3%,60% 0,70% 3%,80% 0,90% 3%,100% 0,97% 10%,100% 20%,97% 30%,100% 40%,97% 50%,100% 60%,97% 70%,100% 80%,97% 90%,100% 100%,90% 97%,80% 100%,70% 97%,60% 100%,50% 97%,40% 100%,30% 97%,20% 100%,10% 97%,0 100%,3% 90%,0 80%,3% 70%,0 60%,3% 50%,0 40%,3% 30%,0 20%,3% 10%);transition:transform .25s cubic-bezier(.23,1,.32,1)}
 .tpp-entry-stamp img{display:block;width:100%;height:39px;object-fit:cover}
 .tpp-entry-stamp small{display:block;text-align:center;font-size:6px;letter-spacing:.12em;color:var(--tpp-ink);margin-top:3px}
@@ -435,6 +437,7 @@ const TPP_CSS = `
 .tpp-entry[data-opening]{animation:tpp-entry-exit .9s ease-out both;pointer-events:none}
 .tpp-entry[data-opening] :is(.tpp-entry-heading,.tpp-entry-caption,.tpp-entry-footer){opacity:0;transition:opacity .15s ease-out}
 .tpp-entry[data-opening] .tpp-entry-flap{transform:rotateX(-180deg);z-index:2;transition-duration:.4s,0s}
+.tpp-entry[data-opening] .tpp-entry-flap::before{opacity:0;transition:opacity .15s ease-out}
 .tpp-entry[data-opening] .tpp-entry-seal{transition:opacity .15s ease-out;opacity:0}
 .tpp-entry[data-opening] .tpp-entry-letter{transform:translateY(-50%) rotate(-2deg);transition-duration:.5s;transition-delay:.16s}
 @keyframes tpp-entry-exit{0%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-12px)}}
@@ -491,6 +494,8 @@ const TPP_CSS = `
 .tpp-nav>*{pointer-events:auto}
 .tpp-stage[data-tone=light] .tpp-nav,.tpp-stage[data-tone=light] .tpp-rail{--tpp-navc:var(--tpp-ink)}
 .tpp-brand{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+.tpp-brand-group{display:flex;flex-direction:column;align-items:flex-start}
+.tpp-profile-views{display:inline-flex;align-items:center;gap:5px;font-size:10px;line-height:12px;letter-spacing:.08em;font-variant-numeric:tabular-nums;opacity:.7}
 .tpp-links{display:flex;gap:clamp(12px,2.2cqw,28px)}
 .tpp-link{position:relative;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.7;transition:opacity .3s}
 .tpp-link:hover,.tpp-link[aria-current=true]{opacity:1}
@@ -2677,7 +2682,7 @@ export default function TornPostcardPortfolio({
               <span className="tpp-entry-postmark">By air<br />Vietnam</span>
             </span>
           </button>
-          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>Click to open the letter<span className="tpp-entry-caption-arrow" aria-hidden="true">↗</span><small>Enter the portfolio · music starts at 35%</small></p>
+          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>Click to open the letter<span className="tpp-entry-caption-arrow" aria-hidden="true">↗</span><small>Enter the portfolio</small></p>
           <span className="tpp-entry-footer">{location} · {since}</span>
         </section>
       )}
@@ -2690,9 +2695,12 @@ export default function TornPostcardPortfolio({
           {contactCh}
 
           <nav className="tpp-nav" aria-label="Chapters">
-            <button type="button" className="tpp-brand" onClick={() => go(0)}>
-              {name}
-            </button>
+            <div className="tpp-brand-group">
+              <button type="button" className="tpp-brand" onClick={() => go(0)}>
+                {name}
+              </button>
+              <ProfileViews opened={entry === "entered"} />
+            </div>
             <div className="tpp-links">
               {labels.map((l, i) => (
                 <button key={l} type="button" className="tpp-link" aria-current={i === active} onClick={() => go(i)}>

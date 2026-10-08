@@ -7,3 +7,5 @@ out/
 next-env.d.ts
 *.pem
 /outputs/
+.agents/
+skills-lock.json

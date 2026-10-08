@@ -7,7 +7,17 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
 (async () => {
   const browser = await chromium.launch({ headless: true, args: ['--autoplay-policy=document-user-activation-required'] });
   try {
+    const viewRequests = [];
+    const visits = new Set();
+    const mockViews = target => target.route('**/api/profile-views', route => {
+      const id = route.request().headers()['idempotency-key'];
+      assert.match(id, /^[0-9a-f-]{36}$/i);
+      viewRequests.push(id);
+      visits.add(id);
+      return route.fulfill({ json: { count: 318 + visits.size } });
+    });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await mockViews(page);
     page.setDefaultTimeout(10000);
     const errors = [];
     const audioRequests = [];
@@ -42,6 +52,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await audio.evaluate(node => node.paused && !node.autoplay && node.loop), true);
     assert.equal(await audio.evaluate(node => node.volume), .35);
     assert.match(await page.locator('.tpp-entry-caption').textContent(), /^Click to open the letter/);
+    assert.doesNotMatch(await page.locator('.tpp-entry-caption').textContent(), /music starts|35%/);
+    assert.deepEqual(viewRequests, [], 'A sealed letter is not a profile view.');
+    assert.equal(await page.locator('.tpp-entry-airmail').evaluate(node => getComputedStyle(node).borderTopWidth), '0px', 'The body border must not cross the exposed letter.');
+    assert.match(await page.locator('.tpp-entry-flap').evaluate(node => getComputedStyle(node, '::before').backgroundImage), /repeating-linear-gradient/, 'The top airmail stripe belongs to the moving flap.');
     await page.screenshot({ path: 'outputs/astraa-entry-sealed.png' });
     await page.getByRole('button', { name: 'Open letter', exact: true }).hover();
     await page.waitForTimeout(280);
@@ -54,10 +68,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert), true);
     assert.deepEqual(await page.evaluate(() => window.__playCalls), [{ volume: .35, activation: true, entry: 'sealed' }], 'Play must run synchronously inside the opening click at 35%.');
     await page.waitForTimeout(350);
+    assert.equal(await page.locator('.tpp-entry-flap').evaluate(node => getComputedStyle(node, '::before').opacity), '0', 'The inside of the open flap has no printed stripe.');
     await page.screenshot({ path: 'outputs/astraa-entry-opening.png' });
     await page.locator('.tpp-root[data-entry=entered]').waitFor();
     assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert), false);
     assert.equal(await page.getByRole('button', { name: 'Astraa', exact: true }).evaluate(node => node === document.activeElement), true);
+    await page.getByRole('img', { name: '319 profile views', exact: true }).waitFor();
+    assert.equal(viewRequests.length, 1, 'Opening the portfolio records one view.');
     await page.waitForFunction(() => { const media = document.querySelector('.music-stamp audio'); return !media.paused && media.currentTime > .2; });
     await musicTrigger.click();
     const play = page.getByRole('button', { name: 'Play background music', exact: true });
@@ -98,6 +115,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await page.locator('.tpp-link[aria-current=true]').textContent(), label);
     };
     await go('About');
+    assert.equal(viewRequests.length, 1, 'Changing chapters/music controls must not record more views.');
     const aboutCopy = page.locator('.tpp-about-copy');
     assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1 && getComputedStyle(node).overflowY === 'visible'), true, 'About must fit the paper without nested scrolling or clipped copy.');
     assert.equal(await page.getByRole('img', { name: 'Astraa — portrait', exact: true }).getAttribute('src'), '/media/astraa-portrait.webp');
@@ -321,10 +339,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       }
     }
     const failedMedia = await browser.newPage();
+    await failedMedia.route('**/api/profile-views', route => route.fulfill({ status: 503, json: { count: null } }));
     failedMedia.on('pageerror', error => errors.push(error.message));
     await failedMedia.route('**/media/buon-vuong-mi.mp3', route => route.fulfill({ status: 503, body: 'Unavailable' }));
     await failedMedia.goto(url, { waitUntil: 'networkidle' });
     await enter(failedMedia);
+    await failedMedia.getByRole('img', { name: 'Profile views temporarily unavailable', exact: true }).waitFor();
+    assert.equal(await failedMedia.locator('.tpp-profile-views').textContent(), '—', 'Unavailable storage must not display a made-up total.');
     await failedMedia.getByRole('button', { name: 'Music player', exact: true }).click();
     await failedMedia.waitForFunction(() => /unavailable|Couldn’t play/.test(document.querySelector('.music-status').textContent));
     assert.equal(await failedMedia.locator('audio').evaluate(node => node.paused), true);
@@ -337,6 +358,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.match(await failedMedia.locator('.music-status').textContent(), /Couldn’t play/);
     await failedMedia.close();
     const deviceVolume = await browser.newPage();
+    await mockViews(deviceVolume);
     await deviceVolume.addInitScript(() => Object.defineProperty(HTMLMediaElement.prototype, 'volume', { configurable: true, get: () => 1, set: () => {} }));
     await deviceVolume.goto(url, { waitUntil: 'networkidle' });
     await enter(deviceVolume);
@@ -348,6 +370,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     const allowedBrowser = await chromium.launch({ headless: true, args: ['--autoplay-policy=no-user-gesture-required'] });
     try {
       const allowed = await allowedBrowser.newPage();
+      await mockViews(allowed);
       allowed.on('pageerror', error => errors.push(error.message));
       await allowed.addInitScript(() => {
         window.__initialPlayVolume = [];
@@ -368,6 +391,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
     } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, seven project images, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
+    console.log('PASS: envelope caption and physical airmail layers, profile views from 319/no extra chapter counts/unavailable storage, personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, seven project images, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -32,13 +32,13 @@ LinkedIn tạm thời là native button `disabled`, không có `href`, không m�
 
 ## Deploy
 
-Repository được liên kết với project Vercel `astraa-scroll-portfolio`. Nhánh production là `main`; các lần push tiếp theo được Vercel tự build và deploy. Không cần cấu hình backend hoặc secret cho website này. `.vercel/` và `.env*` không được commit.
+Repository được liên kết với project Vercel `astraa-scroll-portfolio`. Nhánh production là `main`; các lần push tiếp theo được Vercel tự build và deploy. Bộ đếm cần Upstash Redis với `KV_REST_API_URL` và `KV_REST_API_TOKEN` chỉ dùng ở server. `.vercel/` và `.env*` không được commit.
 
 Domain production chính thức: `astraa1.vercel.app`, được gắn cố định trong project Vercel để tự cập nhật theo mỗi deployment.
 
 ## Kiểm tra
 
-`npm run check` kiểm tra TypeScript; `npm run build` tạo bản production.
+`npm run check` kiểm tra TypeScript; `npm run build` tạo bản production. `npm run check:counter` dùng assert và fetch giả lập để kiểm tra bộ đếm; cần Node.js 24 để đọc TypeScript trực tiếp.
 
 Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` để kiểm tra tương tác bằng Chromium headless trong một browser riêng. Script dùng Playwright đã cài trong runtime Codex; ở máy khác có thể chỉ định đường dẫn module Playwright đã cài bằng biến `PLAYWRIGHT_MODULE`. Ảnh kiểm tra được lưu trong `outputs/` và không commit. Check không gửi email hoặc mở liên kết bên ngoài.
 
@@ -50,6 +50,8 @@ Nút **Music** trong thanh điều hướng mở thẻ giấy nhỏ, phát file 
 
 Trang bắt đầu bằng một bao thư giấy với seal chữ A, tem avatar, viền airmail, dấu bưu điện và vân giấy. Caption là **Click to open the letter**; button có tên accessible **Open letter**. Hover nghiêng thân thư trong phối cảnh, hé nắp, để lá thư lộ ra, xoay tem và quét sáng trên seal. Khi click, nắp và lá thư tiếp tục từ vị trí đang hover bằng CSS transition.
 
+Caption phụ chỉ còn **Enter the portfolio**, không hiển thị phần trăm âm lượng. Viền thân không có cạnh trên; dải xanh/đỏ phía trên thuộc nắp chuyển động và ẩn khi nắp lật để lộ mặt trong. Nó không còn là một lớp phủ chạy ngang lá thư.
+
 Portfolio được ẩn và `inert`, khóa cuộn cho đến khi mở. Click/tap gọi `audio.play()` trực tiếp trong chính handler, sau khi đặt volume 35%, rồi mới chạy nắp thư 3D, kéo lá thư lên và chuyển sang trang hiện tại. Không gọi play sau timeout hoặc sau animation vì sẽ mất quyền user activation. Bàn phím và reduced motion mở ngay; animation có fallback khi bị ngắt và chuyển focus về thanh điều hướng khi xong. Không có âm thanh hoặc request MP3 trước khi mở, kể cả khi browser cho phép autoplay. Pause do người xem chọn không bị tương tác sau bật lại. Xem [MDN autoplay](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay).
 
 HUD thu gọn còn khoảng 244×150 px, dùng system font hỗ trợ tiếng Việt cho tên bài và credit. Có Play/Pause, tua bài, Mute và chỉnh volume; nhạc tiếp tục giữa năm chương. Trạng thái phát dựa trên event của media và kết quả `play()`, có báo lỗi và thử lại khi tải thất bại. Tham khảo [HTMLMediaElement.play](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play).
@@ -57,6 +59,16 @@ HUD thu gọn còn khoảng 244×150 px, dùng system font hỗ trợ tiếng Vi
 Nếu browser không cho phép đặt volume bằng JavaScript, UI dùng thông báo điều chỉnh âm lượng trên thiết bị thay cho slider không hoạt động; kiểm tra trực tiếp khả năng của API, không đoán theo user agent. Xem [tương thích volume](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume). Đĩa chỉ quay khi đang phát có âm thanh và dừng chuyển động với reduced motion. Thẻ nhạc dùng native popover, hỗ trợ focus vào Play, Escape và chạm ngoài để đóng.
 
 Browser check chạy hai policy thật của Chromium: autoplay được phép và cần user activation. Xác nhận portfolio ẩn/inert và khóa cuộn trước khi mở, gọi play trong click còn user activation ở volume 35%, mở bằng touch/Enter/Space, reduced motion và focus, giữ lựa chọn Pause, font/HUD nhỏ, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, đổi chương, focus/Escape, mobile 320/390 px, lỗi mạng/thử lại và volume API chỉ đọc. Không thêm thư viện audio hoặc animation.
+
+## Profile views
+
+Biểu tượng mắt và tổng lượt xem nằm gọn dưới tên Astraa trong thanh điều hướng, kế thừa màu của từng chương. Lượt mở đầu tiên bắt đầu ở **319**, sau đó tăng dần; 318 là số nền do chủ portfolio chọn, không phải dữ liệu truy cập lịch sử đã được đo.
+
+Mỗi lần mở phong bì ghi một lượt qua `POST /api/profile-views`. Chuyển chương, nhạc hoặc gallery không ghi thêm. Một UUID ẩn danh tồn tại trong trang dùng để chống ghi trùng request trong 24 giờ; refresh rồi mở lại được tính là lượt mới. Redis dùng Lua để khởi tạo, chống trùng và tăng số một cách nguyên tử, giữ tổng sau deploy và dùng chung cho mọi người xem. `GET /api/profile-views` chỉ đọc tổng.
+
+Kết nối Marketplace **Upstash for Redis**, gói **Free**, region **sin1**, tắt **autoUpgrade**, **prodPack** và **eviction**. Chủ tài khoản cần chấp nhận điều khoản Marketplace trước khi Vercel cấp lưu trữ. Token không xuất ra client; không lưu IP, email hay tên người xem. Server từ chối lượt ghi có origin khác hoặc UUID không hợp lệ. Nếu lưu trữ thiếu cấu hình, hết hạn mức hoặc lỗi mạng, UI hiện **—** thay vì bịa tổng lượt xem. Bộ đếm đo lượt mở, có thể bao gồm lần xem lặp và bot, không đo người dùng duy nhất.
+
+Browser check giả lập API để các lần kiểm tra không tăng số production; kiểm tra không ghi trước khi mở, số bắt đầu 319, chỉ ghi một lần khi mở, không ghi khi đổi chương và trạng thái lưu trữ lỗi. Redis thật đã được kiểm tra bằng namespace QA riêng: năm request cùng UUID đồng thời chỉ ghi một lượt ở 319, lượt mới thành 320, đọc lại vẫn là 320. Dữ liệu QA được xóa sau kiểm tra, không tăng bộ đếm production.
 
 ## Ảnh thật
 
