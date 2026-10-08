@@ -46,11 +46,13 @@ Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật p
 
 Nút **Music** trong thanh điều hướng mở thẻ giấy nhỏ, phát file **Buồn vương mi — htingale** do Astraa cung cấp. File gốc được sao chép nguyên vẹn thành `public/media/buon-vuong-mi.mp3` (khoảng 1,16 MB); không tải từ dịch vụ âm nhạc bên ngoài.
 
-Player dùng `<audio>` native, `preload="none"`, bắt đầu bằng Play và lặp lại bài. Có Pause, tua bài, Mute và chỉnh volume; âm lượng khởi đầu 35% khi browser hỗ trợ. Nhạc tiếp tục giữa năm chương; refresh không tự phát lại. Trạng thái phát dựa trên event của media và kết quả `play()`, có báo lỗi và thử lại khi tải thất bại hoặc browser chặn phát. Tham khảo [HTMLMediaElement.play](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play).
+Player dùng `<audio>` native và thử autoplay sau khi đặt volume 35%. Khi browser chặn autoplay có tiếng, lần click/tap hoặc nhấn phím đầu tiên trên trang thử phát lại; điều khiển nhạc hoạt động độc lập để tránh Play bị biến thành Pause do hai handler chạy cùng lúc. Pause do người xem chọn sẽ không bị những tương tác sau bật lại. Trình duyệt vẫn quyết định cho phép autoplay; xem [MDN autoplay](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay).
+
+HUD thu gọn còn khoảng 244×150 px, dùng system font hỗ trợ tiếng Việt cho tên bài và credit. Có Play/Pause, tua bài, Mute và chỉnh volume; nhạc tiếp tục giữa năm chương. Trạng thái phát dựa trên event của media và kết quả `play()`, có báo lỗi và thử lại khi tải thất bại. Tham khảo [HTMLMediaElement.play](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play).
 
 Nếu browser không cho phép đặt volume bằng JavaScript, UI dùng thông báo điều chỉnh âm lượng trên thiết bị thay cho slider không hoạt động; kiểm tra trực tiếp khả năng của API, không đoán theo user agent. Xem [tương thích volume](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume). Đĩa chỉ quay khi đang phát có âm thanh và dừng chuyển động với reduced motion. Thẻ nhạc dùng native popover, hỗ trợ focus vào Play, Escape và chạm ngoài để đóng.
 
-Browser check xác nhận file không tải trước Play trong Chromium, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, giữ playback khi đổi chương, focus/Escape, layout mobile 320/390 px, lỗi mạng/thử lại, playback bị chặn và volume API chỉ đọc. Không thêm thư viện audio hoặc visualization.
+Browser check chạy hai policy thật của Chromium: autoplay được phép và cần user activation. Xác nhận volume 35% trước event phát đầu tiên, fallback sau tương tác, giữ lựa chọn Pause, font/HUD nhỏ, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, đổi chương, focus/Escape, mobile 320/390 px, lỗi mạng/thử lại và volume API chỉ đọc. Không thêm thư viện audio hoặc visualization.
 
 ## Motion & UX
 

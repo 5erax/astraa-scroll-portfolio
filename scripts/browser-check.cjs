@@ -5,7 +5,7 @@ require('node:fs').mkdirSync('outputs', { recursive: true });
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'));
 
 (async () => {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, args: ['--autoplay-policy=document-user-activation-required'] });
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     page.setDefaultTimeout(10000);
@@ -21,16 +21,24 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     const audio = page.locator('.music-stamp audio');
     const music = page.getByRole('region', { name: 'Music player controls', exact: true });
     const musicTrigger = page.getByRole('button', { name: /^Music player/ });
-    assert.deepEqual(audioRequests, [], 'The soundtrack must not download before Play.');
+    await page.locator('.music-stamp[data-autoplay=waiting]').waitFor();
+    assert.deepEqual(audioRequests, [], 'Blocked autoplay should not eagerly download the soundtrack.');
     assert.equal(await audio.evaluate(node => node.paused && !node.autoplay && node.loop), true);
     assert.equal(await audio.evaluate(node => node.volume), .35);
     await musicTrigger.click();
     const play = page.getByRole('button', { name: 'Play background music', exact: true });
     assert.equal(await play.evaluate(node => node === document.activeElement), true, 'Opening the player should focus Play.');
-    await page.keyboard.press('Space');
+    const hud = await music.boundingBox();
+    assert.ok(hud.width <= 250 && hud.height <= 170, 'The music HUD must stay compact.');
+    assert.match(await music.getByRole('heading').evaluate(node => getComputedStyle(node).fontFamily), /system-ui/);
+    assert.equal(await music.getByRole('heading').textContent(), 'Buồn vương mi');
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Astraa', exact: true }).click();
     await page.waitForFunction(() => { const media = document.querySelector('.music-stamp audio'); return !media.paused && media.currentTime > .2; });
     assert.ok(audioRequests.length > 0);
     assert.ok(await audio.evaluate(node => Number.isFinite(node.duration) && node.duration > 0));
+    assert.equal(await audio.evaluate(node => node.volume), .35, 'The first site gesture must start blocked autoplay at 35%.');
+    await musicTrigger.click();
     await page.screenshot({ path: 'outputs/astraa-music-stamp.png' });
     const volume = page.getByRole('slider', { name: 'Music volume', exact: true });
     await volume.focus();
@@ -72,6 +80,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.match(await page.getByRole('region', { name: 'About', exact: true }).innerText(), /Ho Chi Minh, Vietnam/);
     assert.equal(await page.locator('a[href="mailto:lagna0175@gmail.com"]').count(), 1);
     await go('Work');
+    assert.equal(await audio.evaluate(node => node.paused), true, 'A manual Pause must survive later site interactions.');
     const names = ['ProZ0', 'MediMate AI', 'FinGenie', 'GeoConnect', 'CVmate', 'Ecommerce Mobile', 'MLN Web'];
     const paths = ['ProZ0', 'SEP490_FE_MedicalAIAssistant', 'FinGenie', 'geoconnect', 'CVmate', 'ecomerce-mobile', 'MLN-web'];
     for (let i = 0; i < names.length; i++) {
@@ -121,7 +130,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload({ waitUntil: 'networkidle' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    assert.equal(await audio.evaluate(node => node.paused), true, 'A refresh must never restart music automatically.');
+    assert.equal(await audio.evaluate(node => node.paused), true, 'A fresh document must respect the browser autoplay block.');
     await musicTrigger.click();
     await page.screenshot({ path: 'outputs/astraa-music-mobile.png' });
     assert.equal(await music.evaluate(node => node.scrollWidth > node.clientWidth), false);
@@ -194,7 +203,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
         assert.equal(await page.locator('.tpp-root').getAttribute('data-mode'), 'stack');
         await musicTrigger.click();
         const musicBox = await music.boundingBox();
-        assert.ok(musicBox.x >= 0 && musicBox.x + musicBox.width <= width && musicBox.y + musicBox.height < height, 'The complete music card must fit a small screen.');
+        assert.ok(musicBox.x >= 0 && musicBox.x + musicBox.width <= width && musicBox.y + musicBox.height < height && musicBox.height <= 170, 'The compact music card must fit a small screen.');
         await page.screenshot({ path: 'outputs/astraa-music-small.png' });
         await page.keyboard.press('Escape');
         await mobileGo('Contact');
@@ -226,7 +235,26 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await deviceVolume.getByRole('slider', { name: 'Music volume', exact: true }).count(), 0, 'A read-only volume API must use the device controls.');
     assert.equal(await deviceVolume.getByText('Use your device volume', { exact: true }).isVisible(), true);
     await deviceVolume.close();
+    // Exercise the other real browser policy: autoplay permitted without a gesture.
+    const allowedBrowser = await chromium.launch({ headless: true, args: ['--autoplay-policy=no-user-gesture-required'] });
+    try {
+      const allowed = await allowedBrowser.newPage();
+      allowed.on('pageerror', error => errors.push(error.message));
+      await allowed.addInitScript(() => {
+        window.__initialPlayVolume = [];
+        document.addEventListener('play', event => { if (event.target instanceof HTMLAudioElement) window.__initialPlayVolume.push(event.target.volume); }, true);
+      });
+      await allowed.goto(url, { waitUntil: 'networkidle' });
+      await allowed.waitForFunction(() => document.querySelector('audio').currentTime > .2);
+      assert.equal(await allowed.locator('audio').evaluate(node => node.volume), .35);
+      assert.deepEqual(await allowed.evaluate(() => window.__initialPlayVolume), [.35], 'Autoplay must set volume before the first sound.');
+      await allowed.getByRole('button', { name: 'Music player — playing', exact: true }).click();
+      await allowed.getByRole('button', { name: 'Pause background music', exact: true }).click();
+      await allowed.keyboard.press('Escape');
+      await allowed.getByRole('button', { name: 'Astraa', exact: true }).click();
+      assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
+    } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: audio lazy loading/play/pause/volume/mute/keyboard seek/chapter continuity/error retry/blocked playback, music popover focus/Escape/mobile/reduced motion, identity, 7 projects, flip/gallery/paper/form/touch, 320–1440px layouts, no browser errors.');
+    console.log('PASS: 35% permitted autoplay and blocked-autoplay gesture fallback, manual Pause retention, compact HUD/system Vietnamese type, play/pause/volume/mute/seek/chapter continuity/error retry/device volume, music focus/Escape/mobile/reduced motion, existing portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
