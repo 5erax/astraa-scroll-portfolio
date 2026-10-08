@@ -100,6 +100,29 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await go('About');
     const aboutCopy = page.locator('.tpp-about-copy');
     assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1 && getComputedStyle(node).overflowY === 'visible'), true, 'About must fit the paper without nested scrolling or clipped copy.');
+    assert.equal(await page.getByRole('img', { name: 'Astraa — portrait', exact: true }).getAttribute('src'), '/media/astraa-portrait.webp');
+    assert.equal(await page.locator('link[rel=icon]').getAttribute('href'), '/media/avatar-personal.png');
+    assert.equal(await page.locator('img[src="/media/avatar.png"]').count(), 0);
+    const gallery = page.getByRole('button', { name: 'Next personal photo', exact: true });
+    const personalPhotos = ['team', 'friends', 'working', 'workspace', 'team-session'];
+    const gallerySize = await gallery.evaluate(node => [node.clientWidth, node.clientHeight]);
+    assert.ok(await gallery.evaluate(node => node.parentElement.clientWidth / node.parentElement.parentElement.clientWidth > .55), 'The personal polaroid must be larger than the old 42% thumbnail.');
+    await page.screenshot({ path: 'outputs/astraa-about-personal.png' });
+    for (let i = 0; i < personalPhotos.length; i++) {
+      assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/' + personalPhotos[i] + '.webp');
+      assert.deepEqual(await gallery.evaluate(node => [node.clientWidth, node.clientHeight]), gallerySize, 'Every photo must use the same gallery frame.');
+      await gallery.click();
+    }
+    assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/team.webp', 'The gallery must wrap back to the team photo.');
+    await gallery.focus();
+    await page.keyboard.press('ArrowLeft');
+    assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/team-session.webp');
+    assert.equal(await gallery.getAttribute('data-animate'), null, 'Keyboard navigation must swap instantly.');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+    assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/friends.webp');
+    assert.match(await gallery.locator('[aria-live=polite]').textContent(), /Photo 2 of 5/);
+    await page.screenshot({ path: 'outputs/astraa-about-gallery.png' });
     await page.screenshot({ path: 'outputs/astraa-about-no-scrollbar.png' });
     assert.equal(await audio.evaluate(node => node.paused), false, 'Music must continue between chapters.');
     await musicTrigger.click();
@@ -158,7 +181,14 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.getByRole('button', { name: 'Copy email', exact: true }).click();
     assert.match(await page.getByRole('status').innerText(), /Copy unavailable/);
     assert.equal(await page.getByRole('link', { name: 'GitHub', exact: true }).getAttribute('href'), 'https://github.com/5erax');
-    assert.equal(await page.getByRole('link', { name: 'LinkedIn', exact: true }).getAttribute('href'), 'https://linkedin.com/in/dha2608');
+    assert.equal(await page.getByRole('link', { name: 'LinkedIn', exact: true }).count(), 0);
+    const unavailableLinkedIn = page.getByRole('button', { name: 'LinkedIn — temporarily unavailable', exact: true });
+    assert.equal(await unavailableLinkedIn.isDisabled(), true);
+    const currentUrl = page.url();
+    const openPages = page.context().pages().length;
+    await unavailableLinkedIn.click({ force: true });
+    assert.equal(page.url(), currentUrl);
+    assert.equal(page.context().pages().length, openPages, 'The unavailable LinkedIn tag must not open another tab.');
     await go('Cover');
     await page.screenshot({ path: 'outputs/astraa-scroll-cover-preview.png' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
@@ -204,6 +234,12 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await page.locator('.tpp-index').evaluate(node => node.matches(':popover-open')), false);
     await mobileGo('About');
     assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1 && getComputedStyle(node).overflowY === 'visible'), true);
+    const touchGalleryBox = await gallery.boundingBox();
+    assert.ok(touchGalleryBox.x >= 0 && touchGalleryBox.x + touchGalleryBox.width <= 390);
+    await entryTouch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: touchGalleryBox.x + touchGalleryBox.width / 2, y: touchGalleryBox.y + touchGalleryBox.height / 2 }] });
+    await entryTouch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    assert.equal(await gallery.locator('img[data-current]').getAttribute('src'), '/media/friends.webp', 'Touch must advance the mini gallery.');
+    await page.waitForFunction(() => getComputedStyle(document.querySelector('.tpp-mini-gallery img[data-current]')).opacity === '1');
     await page.screenshot({ path: 'outputs/astraa-scroll-mobile-preview.png' });
     await mobileGo('Work');
     const deck = page.locator('.tpp-project-stack');
@@ -268,6 +304,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
         await page.keyboard.press('Escape');
         await mobileGo('About');
         assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1), true, 'The complete About note must fit even at 320px.');
+        const smallGallery = await gallery.boundingBox();
+        assert.ok(smallGallery.width >= 120 && smallGallery.x >= 0 && smallGallery.x + smallGallery.width <= width, 'The personal gallery must remain readable and inside the narrow postcard.');
         await mobileGo('Contact');
         const submit = await page.getByRole('button', { name: 'Open email draft ↗', exact: true }).boundingBox();
         assert.ok(submit.y >= 0 && submit.y + submit.height <= height, 'Small-screen contact action must fit the viewport.');
@@ -322,6 +360,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
     } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: detailed envelope with layered 3D hover, click/touch/keyboard entry and 35% music, reduced motion/focus/scroll unlock, complete About without nested scrolling, continuous wheel without auto-snap and ambient pause/resume, seven actual images, playback/error/device-volume controls, existing portfolio flows, 320–1440px layouts, no browser errors.');
+    console.log('PASS: personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, seven project images, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

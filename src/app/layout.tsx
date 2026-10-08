@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Astraa — A developer with an eye for the interface.',
   description: 'Astraa, a fullstack developer in Vietnam focused on expressive UI and thoughtful motion. Explore ProZ0, MediMate AI, FinGenie, and more.',
   authors: [{ name: 'Astraa', url: 'https://github.com/5erax' }],
-  icons: { icon: '/media/avatar.png' },
+  icons: { icon: '/media/avatar-personal.png' },
   openGraph: {
     url: '/',
     title: 'Astraa — A developer with an eye for the interface.',

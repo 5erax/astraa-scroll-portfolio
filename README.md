@@ -4,7 +4,7 @@ Portfolio của **Astraa / 5erax**, phát triển từ Scroll Tear Portfolio c�
 
 [Website live](https://astraa1.vercel.app) · [Repository](https://github.com/5erax/astraa-scroll-portfolio)
 
-Thông tin lấy từ [README GitHub của Astraa](https://github.com/5erax/5erax): fullstack developer tại Việt Nam, UI và interaction, email `lagna0175@gmail.com`, LinkedIn và quá trình học/làm việc. Avatar lấy từ GitHub; artwork ProZ0 và MediMate AI từ portfolio hiện có. Các ảnh phong cảnh khác là minh họa tạo bằng SVG của template.
+Thông tin lấy từ [README GitHub của Astraa](https://github.com/5erax/5erax): fullstack developer tại Việt Nam, UI và interaction, email `lagna0175@gmail.com` và quá trình học/làm việc. Ảnh cá nhân do Astraa cung cấp; avatar anime cũ đã được thay bằng selfie gương đeo khẩu trang, kể cả tem bao thư, tem About và favicon. Các ảnh phong cảnh là minh họa SVG của template.
 
 ## Dự án
 
@@ -27,6 +27,8 @@ Dependencies đã được cài. Nếu chuyển sang máy khác, chạy `npm ci`
 Toàn bộ nội dung cá nhân nằm trong `src/app/page.tsx`: `name`, `email`, `about`, `projects`, `route`, `links`… Metadata nằm trong `src/app/layout.tsx`. API đầy đủ nằm trong [README gốc](upstream/README.md).
 
 Nút `Open email draft` mở ứng dụng email bằng `mailto:` tới `lagna0175@gmail.com`. Người gửi cần bấm gửi trong ứng dụng email; website không có backend gửi thư và không khẳng định thư đã được gửi.
+
+LinkedIn tạm thời là native button `disabled`, không có `href`, không mở trang hay tab mới. URL vẫn lưu trong cấu hình; bỏ `disabled: true` khi tài khoản hoạt động trở lại.
 
 ## Deploy
 
@@ -57,6 +59,12 @@ Nếu browser không cho phép đặt volume bằng JavaScript, UI dùng thông 
 Browser check chạy hai policy thật của Chromium: autoplay được phép và cần user activation. Xác nhận portfolio ẩn/inert và khóa cuộn trước khi mở, gọi play trong click còn user activation ở volume 35%, mở bằng touch/Enter/Space, reduced motion và focus, giữ lựa chọn Pause, font/HUD nhỏ, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, đổi chương, focus/Escape, mobile 320/390 px, lỗi mạng/thử lại và volume API chỉ đọc. Không thêm thư viện audio hoặc animation.
 
 ## Ảnh thật
+
+About dùng `IMG_1417.png` làm ảnh chân dung lớn. Polaroid nhỏ rộng 58% cột ảnh trên desktop (trước đây 42%) và 52% trên mobile. Ảnh team `IMG_8332.jpg` hiển thị đầu tiên; bấm để chuyển qua bốn ảnh tiếp theo: `IMG_8178.jpg`, `IMG_8118.jpg`, `IMG_7125.jpg`, `IMG_8007.jpg`, rồi quay lại ảnh team. Khung có kích thước cố định và bộ đếm 1–5; ảnh dọc dùng `object-fit: contain` để giữ nguyên toàn bộ ảnh.
+
+Gallery dùng native button, hỗ trợ click/tap, Enter/Space, ArrowLeft/ArrowRight và thông báo ảnh hiện tại cho screen reader. Chuyển ảnh bằng chuột/touch có crossfade 200 ms; bàn phím và reduced motion đổi ngay. State nằm trong gallery nên click ảnh không render lại toàn bộ portfolio. Không tự chạy slideshow.
+
+Ảnh được resize/nén bằng Sharp đã có sẵn trong Next.js, không thêm dependency và không sửa nội dung bằng AI. Ảnh team được crop bớt không gian trống, vẫn giữ đủ bốn người và toàn thân. Bản xuất bỏ metadata của máy ảnh. `IMG_8595.jpg` được lấy vùng phía trên để làm avatar vuông 384×384; tên file `avatar-personal.png` tránh dùng lại URL avatar cũ. File gốc trong Downloads được giữ nguyên.
 
 About dùng avatar GitHub thật của Astraa và ảnh ProZ0 đang làm. Bảy polaroid đều dùng ảnh WebP 800×800, không còn ảnh phong cảnh mẫu. Các ảnh chụp từ trang public ngày 08/10/2026:
 

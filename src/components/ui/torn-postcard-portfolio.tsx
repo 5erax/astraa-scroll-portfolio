@@ -47,12 +47,14 @@ export type PostcardAbout = {
   photo?: string
   /** The face in the stamp. A drawn figure in a red jacket when omitted. */
   portrait?: string
+  /** Personal photographs in the small, click-through polaroid. */
+  snapshots?: { src: string; alt: string }[]
   /** Rows on the back of the card. */
   facts?: { label: string; value: string }[]
   skills?: string[]
 }
 
-export type PostcardLink = { label: string; url: string }
+export type PostcardLink = { label: string; url: string; disabled?: boolean }
 
 export type PostcardPalette = {
   /** Night-blue chapters. */
@@ -540,6 +542,12 @@ const TPP_CSS = `
 .tpp-rule{background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(1.5em - 1px),rgba(38,54,79,.22) calc(1.5em - 1px),rgba(38,54,79,.22) 1.5em)}
 .tpp-hw{font-family:var(--tpp-hand);font-size:clamp(13px,1.45cqw,19px);line-height:1.5em;color:#2f4a76}
 .tpp-about-copy{font-size:clamp(14px,min(1.4cqw,2.3cqh),18px)}
+.tpp-mini-gallery{display:flex;flex-direction:column;position:relative;width:100%;height:100%;cursor:pointer;color:var(--tpp-ink);text-align:left}
+.tpp-gallery-image{display:block;position:relative;flex:1;min-height:0;background:#e4dfd5;overflow:clip}
+.tpp-gallery-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0}
+.tpp-mini-gallery[data-animate] .tpp-gallery-image img{transition:opacity .2s cubic-bezier(.23,1,.32,1)}
+.tpp-gallery-image img[data-current]{opacity:1}
+.tpp-gallery-caption{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:8px;line-height:20px;letter-spacing:.06em;white-space:nowrap}
 .tpp-envelope{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .tpp-envelope .tpp-letter{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 
@@ -597,6 +605,7 @@ const TPP_CSS = `
 .tpp-luggage{position:relative;display:inline-flex;align-items:center;gap:8px;padding:8px 16px 8px 26px;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;background:var(--tpp-paper);color:var(--tpp-ink);clip-path:polygon(12px 0,100% 0,100% 100%,12px 100%,0 50%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .tpp-luggage::before{content:"";position:absolute;left:12px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:99px;background:var(--tpp-deep)}
 .tpp-luggage:hover{transform:rotate(-3deg) translateY(-2px)}
+.tpp-luggage:disabled{opacity:.5;cursor:default;transform:none}
 .tpp-aurora{animation:tpp-aurora 14s ease-in-out infinite alternate;transform-box:view-box;transform-origin:50% 30%}
 @keyframes tpp-aurora{from{transform:translateX(-30px) scaleY(.9);opacity:.55}to{transform:translateX(30px) scaleY(1.1);opacity:.85}}
 .tpp-twinkle{animation:tpp-tw 3s ease-in-out infinite alternate}
@@ -1194,6 +1203,29 @@ function Photo({ src, kind, seed, alt }: { src?: string; kind?: SceneKind; seed?
         <Scene kind={kind} seed={seed} />
       )}
     </div>
+  )
+}
+
+function SnapshotGallery({ photos }: { photos: NonNullable<PostcardAbout["snapshots"]> }) {
+  const [index, setIndex] = React.useState(0)
+  const [animate, setAnimate] = React.useState(false)
+  const description = React.useId()
+  const current = wrap(index, photos.length)
+  return (
+    <button type="button" className="tpp-mini-gallery" data-animate={animate ? "" : undefined} aria-label="Next personal photo" aria-describedby={description}
+      onClick={event => { setAnimate(event.detail > 0); setIndex(i => wrap(i + 1, photos.length)) }}
+      onKeyDown={event => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return
+        event.preventDefault()
+        setAnimate(false)
+        setIndex(i => wrap(i + (event.key === "ArrowRight" ? 1 : -1), photos.length))
+      }}>
+      <span className="tpp-gallery-image">
+        {photos.map((photo, i) => <img key={photo.src} src={photo.src} alt={i === current ? photo.alt : ""} aria-hidden={i !== current} data-current={i === current ? "" : undefined} draggable={false} />)}
+      </span>
+      <span className="tpp-gallery-caption" aria-hidden="true"><span>{current + 1} / {photos.length}</span><span>Next photo ↗</span></span>
+      <span id={description} className="sr-only" aria-live="polite">{photos[current].alt}. Photo {current + 1} of {photos.length}.</span>
+    </button>
   )
 }
 
@@ -2019,14 +2051,14 @@ export default function TornPostcardPortfolio({
       <Grain uid={uid} opacity={0.35} />
       <div className="tpp-pc-grid relative">
         <div className="relative min-h-0" style={{ minHeight: narrow ? "24cqh" : undefined }}>
-          <div className="absolute overflow-clip" style={{ left: 0, top: 0, right: "6%", bottom: narrow ? "8%" : "22%", border: "5px solid " + pal.navy, boxShadow: "0 6px 14px rgba(0,0,0,.25)" }}>
-            <Photo src={ab.photo} kind="dawn" seed={4} alt={ab.photo === ab.portrait ? name + " — GitHub avatar" : name} />
+          <div className="absolute overflow-clip" style={{ left: 0, top: 0, right: narrow ? "38%" : "6%", bottom: narrow ? "8%" : "22%", border: "5px solid " + pal.navy, boxShadow: "0 6px 14px rgba(0,0,0,.25)" }}>
+            <Photo src={ab.photo} kind="dawn" seed={4} alt={name + " — portrait"} />
           </div>
-          <div className="tpp-snapshot absolute" style={{ left: "6%", bottom: narrow ? "0%" : "8%", width: "42%", aspectRatio: "1.25", transform: "rotate(-4deg)", background: "#fbfaf6", padding: 5, boxShadow: "0 8px 16px rgba(0,0,0,.3)" }}>
-            <div className="relative h-full w-full overflow-clip">
+          <div className="tpp-snapshot absolute" style={{ left: narrow ? "48%" : "6%", bottom: 0, width: narrow ? "52%" : "58%", aspectRatio: "1.2", transform: "rotate(-4deg)", background: "#fbfaf6", padding: 6, boxShadow: "0 8px 16px rgba(0,0,0,.3)" }}>
+            {ab.snapshots?.length ? <SnapshotGallery photos={ab.snapshots} /> : <div className="relative h-full w-full overflow-clip">
               <Photo src={list[0].image} kind="lake" seed={6} alt={list[0].name + " — current work"} />
-            </div>
-            <span className="tpp-tape" style={{ right: -26, top: -6, transform: "rotate(36deg)" }} />
+            </div>}
+            <span className="tpp-tape" aria-hidden="true" style={{ right: narrow ? -6 : -26, top: -6, transform: "rotate(36deg)", pointerEvents: "none" }} />
           </div>
           <svg className="tpp-svg tpp-wide absolute" viewBox="0 0 200 40" style={{ right: "6%", bottom: 0, width: "44%" }} aria-hidden="true">
             <path d="M0 38 L40 12 L58 24 L84 4 L120 34 L140 22 L170 38" fill="none" stroke={pal.ink} strokeOpacity=".5" strokeWidth="1.2" />
@@ -2588,7 +2620,7 @@ export default function TornPostcardPortfolio({
           </Pop>
           <Pop d={0.25} className="mt-[1.5cqh] flex flex-wrap justify-center gap-3 px-4">
             {links.map((l) => (
-              <a key={l.url} href={l.url} target="_blank" rel="noreferrer" className="tpp-luggage">
+              l.disabled ? <button key={l.url} type="button" disabled className="tpp-luggage" title="Temporarily unavailable" aria-label={l.label + " — temporarily unavailable"}>{l.label}</button> : <a key={l.url} href={l.url} target="_blank" rel="noreferrer" className="tpp-luggage">
                 {l.label}
               </a>
             ))}

@@ -15,8 +15,15 @@ const portfolio = {
     title: 'A note from Astraa',
     subtitle: 'The person behind the interface',
     text: 'I’m Astraa, a fullstack developer in Vietnam. I build expressive interfaces, thoughtful motion, and the components, APIs, and data flows behind them.',
-    portrait: '/media/avatar.png',
-    photo: '/media/avatar.png',
+    portrait: '/media/avatar-personal.png',
+    photo: '/media/astraa-portrait.webp',
+    snapshots: [
+      { src: '/media/team.webp', alt: 'Astraa with the team' },
+      { src: '/media/friends.webp', alt: 'An evening with friends' },
+      { src: '/media/working.webp', alt: 'Working on a website' },
+      { src: '/media/workspace.webp', alt: 'A shared workspace' },
+      { src: '/media/team-session.webp', alt: 'A team working session' },
+    ],
     facts: [
       { label: 'Based in', value: 'Ho Chi Minh, Vietnam' },
       { label: 'Building', value: 'Web, mobile & games' },
@@ -79,7 +86,7 @@ const portfolio = {
   ],
   links: [
     { label: 'GitHub', url: 'https://github.com/5erax' },
-    { label: 'LinkedIn', url: 'https://linkedin.com/in/dha2608' },
+    { label: 'LinkedIn', url: 'https://linkedin.com/in/dha2608', disabled: true },
     { label: 'MediMate live', url: 'https://sep-490-fe-medical-ai-assistant.vercel.app' },
   ],
   labels: ['Cover', 'About', 'Work', 'Journey', 'Contact'],
