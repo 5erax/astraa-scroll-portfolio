@@ -395,6 +395,45 @@ const TPP_CSS = `
 .tpp-svg{display:block;max-width:none}
 .tpp-fill{position:absolute;inset:0;width:100%;height:100%}
 .tpp-track{position:relative;width:100%}
+html:has(.tpp-root[data-entry]:not([data-entry=entered])){overflow:hidden}
+.tpp-root[data-entry=sealed] .tpp-track{visibility:hidden}
+.tpp-root:not([data-entry=entered]) .tpp-track *{animation-play-state:paused!important}
+.tpp-entry{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;padding:28px 20px;background:var(--tpp-deep);color:var(--tpp-paper);overflow:clip;isolation:isolate}
+.tpp-entry::before{content:"";position:absolute;inset:18px;border:1px solid rgba(242,237,226,.14);pointer-events:none}
+.tpp-entry::after{content:"";position:absolute;inset:0;background-image:var(--tpp-gd);background-size:192px;pointer-events:none;z-index:-1}
+.tpp-entry-heading{text-align:center;margin:0}
+.tpp-entry-heading span{display:block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;opacity:.7}
+.tpp-entry-heading strong{font-family:var(--tpp-serif);font-size:clamp(28px,5vw,42px);font-weight:400;line-height:1.2}
+.tpp-root .tpp-entry-button{position:relative;width:min(420px,78vw);aspect-ratio:1.6;perspective:1200px;isolation:isolate;outline-offset:16px;flex-shrink:0}
+.tpp-entry-envelope{position:absolute;inset:0;background:#d6cbb8;border:1px solid #d7cbb6;border-radius:3px;box-shadow:0 24px 52px -20px rgba(0,0,0,.7);transition:translate .2s ease}
+.tpp-entry-letter{position:absolute;inset:10% 6% 4%;z-index:3;background:#fcf9f1;border:1px solid #d7cbb6;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tpp-ink);gap:12px;text-align:center}
+.tpp-entry-letter span{font-family:var(--tpp-serif);font-size:clamp(26px,5vw,40px)}
+.tpp-entry-letter small{font-size:9px;letter-spacing:.22em;text-transform:uppercase}
+.tpp-entry-pocket{position:absolute;inset:0;z-index:5;clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%);background:linear-gradient(33deg,#e7ddcc 49.7%,#c5b69e 50%,#eee5d6 50.3%);border-radius:3px}
+.tpp-entry-fold{position:absolute;inset:0;z-index:6;clip-path:polygon(0 100%,50% 42%,100% 100%);background:linear-gradient(180deg,#e0d5c1,#efe7d8);border-radius:3px}
+.tpp-entry-flap{position:absolute;left:0;right:0;top:0;height:58%;z-index:8;transform-origin:50% 0;transform-style:preserve-3d;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(#f4ede0,#dbcfba);border-top:1px solid rgba(255,255,255,.7)}
+.tpp-entry-seal{position:absolute;left:50%;top:48%;z-index:9;display:grid;place-items:center;width:52px;height:52px;transform:translate(-50%,-50%) rotate(-8deg);border-radius:48% 52% 46% 54%;background:radial-gradient(circle at 35% 25%,#c2845b,#8b472d);color:#f2dfc4;border:3px double #d0996d;box-shadow:0 3px 4px rgba(67,32,22,.3);font-family:var(--tpp-serif);font-size:24px}
+.tpp-entry-address{position:absolute;left:7%;bottom:9%;z-index:7;color:var(--tpp-ink);font-size:10px;line-height:1.8;letter-spacing:.12em;text-transform:uppercase}
+.tpp-entry-postmark{position:absolute;right:7%;bottom:10%;z-index:7;color:var(--tpp-accent);border:1px solid currentColor;border-radius:50%;width:54px;height:54px;display:grid;place-items:center;font-size:8px;letter-spacing:.05em;text-align:center;line-height:1.4;transform:rotate(-14deg)}
+.tpp-entry-caption{text-align:center;line-height:1.7;margin:0;font-size:12px;letter-spacing:.12em}
+.tpp-entry-caption small{display:block;font-size:10px;letter-spacing:.06em;opacity:.6}
+.tpp-entry-footer{position:absolute;bottom:36px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.5}
+.tpp-entry[data-opening]{animation:tpp-entry-exit .9s ease-out both;pointer-events:none}
+.tpp-entry[data-opening] :is(.tpp-entry-heading,.tpp-entry-caption,.tpp-entry-footer){opacity:0;transition:opacity .15s ease-out}
+.tpp-entry[data-opening] .tpp-entry-flap{animation:tpp-open-flap .4s cubic-bezier(.23,1,.32,1) both}
+.tpp-entry[data-opening] .tpp-entry-seal{transition:opacity .15s ease-out;opacity:0}
+.tpp-entry[data-opening] .tpp-entry-letter{animation:tpp-open-letter .5s cubic-bezier(.23,1,.32,1) .22s both}
+@keyframes tpp-open-flap{0%{transform:rotateX(0);z-index:8}49%{z-index:8}50%{z-index:2}100%{transform:rotateX(180deg);z-index:2}}
+@keyframes tpp-open-letter{to{transform:translateY(-50%) rotate(-2deg)}}
+@keyframes tpp-entry-exit{0%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-12px)}}
+@media(max-height:600px){.tpp-entry{gap:24px}.tpp-root .tpp-entry-button{width:min(340px,65vw)}.tpp-entry-footer{bottom:24px}}
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ .tpp-entry-button:hover .tpp-entry-envelope{translate:0 -3px}
+ .tpp-root :is(.tpp-note,.tpp-envelope,.tpp-project-stack,.tpp-snapshot,.tpp-logo-button){transition:translate .2s ease,rotate .2s ease}
+ .tpp-note:hover,.tpp-envelope:hover,.tpp-project-stack:hover,.tpp-snapshot:hover{translate:0 -3px}
+ .tpp-snapshot:hover,.tpp-logo-button:hover{rotate:1deg}
+ .tpp-envelope:hover .tpp-letter{transform:translateY(-10px)}
+}
 .tpp-stage{position:sticky;top:0;width:100%;overflow:clip;container-type:size;container-name:tpp;background:var(--tpp-deep)}
 .tpp-ch{position:absolute;inset:0;visibility:hidden}
 .tpp-ch[data-on]{visibility:visible}
@@ -453,7 +492,6 @@ const TPP_CSS = `
 .tpp-paper{background:var(--tpp-paper);color:var(--tpp-ink);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 18px 40px -18px rgba(8,14,26,.55),0 3px 8px rgba(8,14,26,.18)}
 .tpp-tape{position:absolute;width:76px;height:22px;background:var(--tpp-tape);opacity:.82;clip-path:polygon(0 10%,6% 0,12% 12%,20% 0,100% 0,96% 30%,100% 55%,95% 80%,100% 100%,0 100%,4% 70%,0 45%);mix-blend-mode:multiply;z-index:3;pointer-events:none}
 .tpp-note{position:absolute;padding:14px 18px 16px;font-family:var(--tpp-hand);font-size:clamp(14px,1.35cqw,19px);line-height:1.15;text-align:center;clip-path:polygon(2% 6%,10% 0,22% 5%,40% 1%,60% 6%,78% 0,96% 4%,100% 22%,97% 48%,100% 76%,96% 100%,74% 95%,52% 100%,30% 94%,8% 100%,0 78%,3% 50%,0 24%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
-.tpp-note:hover{transform:rotate(-1deg) translateY(-4px) scale(1.03)}
 
 .tpp-eagle .tpp-wing{transform-box:view-box;transform-origin:124px 98px;animation:tpp-flap 3.6s ease-in-out infinite}
 .tpp-eagle .tpp-wing-b{transform-origin:142px 96px;animation-delay:-.15s}
@@ -482,8 +520,6 @@ const TPP_CSS = `
 .tpp-hw{font-family:var(--tpp-hand);font-size:clamp(13px,1.45cqw,19px);line-height:1.5em;color:#2f4a76}
 .tpp-envelope{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .tpp-envelope .tpp-letter{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.tpp-envelope:hover{transform:rotate(-4deg) translateY(-4px)}
-.tpp-envelope:hover .tpp-letter{transform:translateY(-26px)}
 
 .tpp-project-stack{touch-action:pan-y;perspective:1000px}
 .tpp-polaroid{position:absolute;inset:0;padding:10px 10px 0;background:#f7f4ee;box-shadow:0 22px 40px -18px rgba(0,0,0,.6),0 2px 6px rgba(0,0,0,.25);transition:transform .4s cubic-bezier(.23,1,.32,1),opacity .25s}
@@ -1460,6 +1496,8 @@ export default function TornPostcardPortfolio({
   const mark = initials(name)
 
   const rootRef = React.useRef(null as HTMLDivElement | null)
+  const musicRef = React.useRef<{ start: () => void }>(null)
+  const [entry, setEntry] = React.useState<"sealed" | "opening" | "entered">("sealed")
   const trackRef = React.useRef(null as HTMLDivElement | null)
   const stageRef = React.useRef(null as HTMLDivElement | null)
   const chRefs = React.useRef([] as (HTMLDivElement | null)[])
@@ -1471,6 +1509,17 @@ export default function TornPostcardPortfolio({
   const [reduced, setReduced] = React.useState(false)
   const [compact, setCompact] = React.useState(false)
   const stack = reduced || compact
+  React.useEffect(() => {
+    if (entry === "opening") {
+      if (reduced) { setEntry("entered"); return }
+      // Also finish if the browser interrupts the CSS animation.
+      const timer = window.setTimeout(() => setEntry("entered"), 1000)
+      return () => window.clearTimeout(timer)
+    }
+  }, [entry, reduced])
+  React.useEffect(() => {
+    if (entry === "entered") rootRef.current?.querySelector<HTMLButtonElement>(".tpp-brand")?.focus({ preventScroll: true })
+  }, [entry])
   const activeRef = React.useRef(0)
   const modeRef = React.useRef(stack)
 
@@ -1939,11 +1988,11 @@ export default function TornPostcardPortfolio({
       <div className="tpp-pc-grid relative">
         <div className="relative min-h-0" style={{ minHeight: narrow ? "24cqh" : undefined }}>
           <div className="absolute overflow-clip" style={{ left: 0, top: 0, right: "6%", bottom: narrow ? "8%" : "22%", border: "5px solid " + pal.navy, boxShadow: "0 6px 14px rgba(0,0,0,.25)" }}>
-            <Photo src={ab.photo} kind="dawn" seed={4} alt={name} />
+            <Photo src={ab.photo} kind="dawn" seed={4} alt={ab.photo === ab.portrait ? name + " — GitHub avatar" : name} />
           </div>
-          <div className="absolute" style={{ left: "6%", bottom: narrow ? "0%" : "8%", width: "42%", aspectRatio: "1.25", transform: "rotate(-4deg)", background: "#fbfaf6", padding: 5, boxShadow: "0 8px 16px rgba(0,0,0,.3)" }}>
+          <div className="tpp-snapshot absolute" style={{ left: "6%", bottom: narrow ? "0%" : "8%", width: "42%", aspectRatio: "1.25", transform: "rotate(-4deg)", background: "#fbfaf6", padding: 5, boxShadow: "0 8px 16px rgba(0,0,0,.3)" }}>
             <div className="relative h-full w-full overflow-clip">
-              <Photo kind="lake" seed={6} />
+              <Photo src={list[0].image} kind="lake" seed={6} alt={list[0].name + " — current work"} />
             </div>
             <span className="tpp-tape" style={{ right: -26, top: -6, transform: "rotate(36deg)" }} />
           </div>
@@ -2531,10 +2580,35 @@ export default function TornPostcardPortfolio({
       ref={rootRef}
       className={"tpp-root " + className}
       data-mode={stack ? "stack" : "pin"}
+      data-entry={entry}
       style={rootStyle}
     >
       <style>{TPP_CSS}</style>
-      <div ref={trackRef} className="tpp-track" style={{ height: stack ? "auto" : "calc(" + height + " * " + fmt(1 + (N - 1) * scrollPerChapter + 0.35) + ")" }}>
+      {entry !== "entered" && (
+        <section className="tpp-entry" aria-label={"A letter from " + name} data-opening={entry === "opening" ? "" : undefined}
+          onAnimationEnd={event => { if (event.target === event.currentTarget) setEntry("entered") }}>
+          <h2 className="tpp-entry-heading"><span>{name} · Field journal</span><strong>A little letter, just for you.</strong></h2>
+          <button type="button" className="tpp-entry-button" aria-label="Open letter" aria-describedby={uid + "-entry-caption"} aria-disabled={entry === "opening"}
+            onClick={event => {
+              if (entry !== "sealed") return
+              // Call play inside this click, before any animation or asynchronous work.
+              musicRef.current?.start()
+              window.scrollTo({ top: 0, behavior: "instant" })
+              setEntry(reduced || event.detail === 0 ? "entered" : "opening")
+            }}>
+            <span className="tpp-entry-envelope" aria-hidden="true">
+              <span className="tpp-entry-letter"><small>Inside this letter</small><span>{name}</span><small>Work · Ideas · A little music</small></span>
+              <span className="tpp-entry-pocket" /><span className="tpp-entry-fold" /><span className="tpp-entry-flap" />
+              <span className="tpp-entry-seal">{mark}</span>
+              <span className="tpp-entry-address">To: You<br />From: {name}</span>
+              <span className="tpp-entry-postmark">By air<br />Vietnam</span>
+            </span>
+          </button>
+          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>Open the letter<small>Enter the portfolio · music starts at 35%</small></p>
+          <span className="tpp-entry-footer">{location} · {since}</span>
+        </section>
+      )}
+      <div ref={trackRef} className="tpp-track" inert={entry !== "entered"} aria-hidden={entry !== "entered"} style={{ height: stack ? "auto" : "calc(" + height + " * " + fmt(1 + (N - 1) * scrollPerChapter + 0.35) + ")" }}>
         <div ref={stageRef} className="tpp-stage" data-tone="dark" style={{ height: stack ? "auto" : height }}>
           {hero}
           {aboutCh}
@@ -2554,11 +2628,11 @@ export default function TornPostcardPortfolio({
               ))}
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <MusicPlayer />
+              <MusicPlayer ref={musicRef} />
               <button type="button" className="tpp-count" aria-label="Choose chapter" popoverTarget={uid + "-index"}>
                 {String(active + 1).padStart(2, "0")} / 05 ≡
               </button>
-              <button type="button" aria-label={name + " — back to the cover"} onClick={() => go(0)}>
+              <button type="button" className="tpp-logo-button" aria-label={name + " — back to the cover"} onClick={() => go(0)}>
                 <Logo mark={mark} since={since} />
               </button>
             </div>

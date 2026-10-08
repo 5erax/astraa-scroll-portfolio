@@ -46,17 +46,35 @@ Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật p
 
 Nút **Music** trong thanh điều hướng mở thẻ giấy nhỏ, phát file **Buồn vương mi — htingale** do Astraa cung cấp. File gốc được sao chép nguyên vẹn thành `public/media/buon-vuong-mi.mp3` (khoảng 1,16 MB); không tải từ dịch vụ âm nhạc bên ngoài.
 
-Player dùng `<audio>` native và thử autoplay sau khi đặt volume 35%. Khi browser chặn autoplay có tiếng, lần click/tap hoặc nhấn phím đầu tiên trên trang thử phát lại; điều khiển nhạc hoạt động độc lập để tránh Play bị biến thành Pause do hai handler chạy cùng lúc. Pause do người xem chọn sẽ không bị những tương tác sau bật lại. Trình duyệt vẫn quyết định cho phép autoplay; xem [MDN autoplay](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay).
+Trang bắt đầu bằng một bao thư giấy với seal chữ A. Portfolio được ẩn và `inert`, khóa cuộn cho đến khi mở. Click/tap **Open letter** gọi `audio.play()` trực tiếp trong chính handler, sau khi đặt volume 35%, rồi mới chạy nắp thư 3D, kéo lá thư lên và chuyển sang trang hiện tại. Không gọi play sau timeout hoặc sau animation vì sẽ mất quyền user activation. Bàn phím và reduced motion mở ngay; animation có fallback khi bị ngắt và chuyển focus về thanh điều hướng khi xong. Không có âm thanh hoặc request MP3 trước khi mở, kể cả khi browser cho phép autoplay. Pause do người xem chọn không bị tương tác sau bật lại. Xem [MDN autoplay](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay).
 
 HUD thu gọn còn khoảng 244×150 px, dùng system font hỗ trợ tiếng Việt cho tên bài và credit. Có Play/Pause, tua bài, Mute và chỉnh volume; nhạc tiếp tục giữa năm chương. Trạng thái phát dựa trên event của media và kết quả `play()`, có báo lỗi và thử lại khi tải thất bại. Tham khảo [HTMLMediaElement.play](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play).
 
 Nếu browser không cho phép đặt volume bằng JavaScript, UI dùng thông báo điều chỉnh âm lượng trên thiết bị thay cho slider không hoạt động; kiểm tra trực tiếp khả năng của API, không đoán theo user agent. Xem [tương thích volume](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/volume). Đĩa chỉ quay khi đang phát có âm thanh và dừng chuyển động với reduced motion. Thẻ nhạc dùng native popover, hỗ trợ focus vào Play, Escape và chạm ngoài để đóng.
 
-Browser check chạy hai policy thật của Chromium: autoplay được phép và cần user activation. Xác nhận volume 35% trước event phát đầu tiên, fallback sau tương tác, giữ lựa chọn Pause, font/HUD nhỏ, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, đổi chương, focus/Escape, mobile 320/390 px, lỗi mạng/thử lại và volume API chỉ đọc. Không thêm thư viện audio hoặc visualization.
+Browser check chạy hai policy thật của Chromium: autoplay được phép và cần user activation. Xác nhận portfolio ẩn/inert và khóa cuộn trước khi mở, gọi play trong click còn user activation ở volume 35%, mở bằng touch/Enter/Space, reduced motion và focus, giữ lựa chọn Pause, font/HUD nhỏ, phát/tạm dừng MP3 thật, tua bằng bàn phím, volume/Mute, đổi chương, focus/Escape, mobile 320/390 px, lỗi mạng/thử lại và volume API chỉ đọc. Không thêm thư viện audio hoặc animation.
+
+## Ảnh thật
+
+About dùng avatar GitHub thật của Astraa và ảnh ProZ0 đang làm. Bảy polaroid đều dùng ảnh WebP 800×800, không còn ảnh phong cảnh mẫu. Các ảnh chụp từ trang public ngày 08/10/2026:
+
+| File trong `public/media/` | Nguồn | Nội dung |
+| --- | --- | --- |
+| `proz0-preview.webp` | [ProZ0](https://proz0-colony.vercel.app) | Trang bắt đầu game |
+| `medimate-preview.webp` | [MediMate AI](https://sep-490-fe-medical-ai-assistant.vercel.app) | Trang giới thiệu |
+| `geoconnect-preview.webp` | [GeoConnect](https://geoconnect-nu.vercel.app) | Chế độ Terrain có sẵn, giữ credit OpenStreetMap/OpenTopoMap |
+| `cvmate-preview.webp` | [CVmate](https://c-vmate-hu48.vercel.app) | Trang giới thiệu |
+| `mln-preview.webp` | [MLN Web](https://mln-web-bay.vercel.app) | Trang học tập |
+| `fingenie-preview.webp` | [FinGenie](https://github.com/5erax/FinGenie) | Repository; chưa có ảnh demo được xác minh |
+| `ecommerce-preview.webp` | [Ecommerce Mobile](https://github.com/5erax/ecomerce-mobile) | Repository; chưa có ảnh demo được xác minh |
+
+Hai ảnh repository được ghi rõ **source repository · preview pending**. Không dùng mockup để giả làm giao diện đã hoàn thành. Các minh họa núi/tuyết/trang giấy là artwork trang trí của template, vẫn giữ nguyên.
 
 ## Motion & UX
 
 Giấy nghiêng trong phối cảnh và thay đổi ánh sáng theo độ mở của vết xé. Vòng animation cache các layer và kích thước, bỏ qua attribute/style không đổi, dừng khi đã bắt kịp vị trí cuộn. Hiệu ứng của chương ẩn được pause; parallax chỉ chạy với chuột và reset khi rời trang.
+
+Note, bao thư nhỏ, ảnh About, chồng polaroid và logo có hover nhẹ bằng `translate`/`rotate`, tránh ghi đè transform inline của template. Chỉ chạy với pointer fine có hover và không yêu cầu reduced motion; không thêm vòng mouse tracking hoặc thư viện mới.
 
 Snap chờ `scrollend` và một khoảng nghỉ ngắn, hủy khi có input mới; browser cũ dùng debounce. Mobile có chapter index bằng native popover, hỗ trợ Escape và chạm ngoài để đóng. Gallery hỗ trợ vuốt ngang, phím mũi tên và nút lớn hơn. Reduced motion hoặc viewport thấp dùng cuộn thường để vẫn đọc được nội dung; đổi chế độ giữ nguyên chương đang xem.
 

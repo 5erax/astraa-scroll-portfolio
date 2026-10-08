@@ -1,14 +1,13 @@
 "use client"
 
-import { memo, useCallback, useEffect, useId, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useId, useImperativeHandle, useRef, useState, type Ref } from "react"
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`
 
-function MusicPlayer() {
+function MusicPlayer({ ref }: { ref?: Ref<{ start: () => void }> }) {
   const id = useId()
   const audioRef = useRef<HTMLAudioElement>(null)
   const attempt = useRef(0)
-  const autoPending = useRef(false)
   const lastVolume = useRef(.35)
   const [playing, setPlaying] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -18,27 +17,26 @@ function MusicPlayer() {
   const [volume, setVolume] = useState(.35)
   const [muted, setMuted] = useState(false)
   const [adjustable, setAdjustable] = useState(true)
-  const [blocked, setBlocked] = useState(false)
 
-  const start = useCallback(async (automatic = false) => {
+  const start = useCallback(async () => {
     const audio = audioRef.current
     if (!audio) return
     const request = ++attempt.current
-    autoPending.current = false
-    setBlocked(false)
     setError("")
     setLoading(true)
     if (audio.error) audio.load()
     try { await audio.play() }
     catch (reason) {
       if (request !== attempt.current) return
-      if (reason instanceof DOMException && reason.name === "NotAllowedError" && automatic) {
-        autoPending.current = true
-        setBlocked(true)
-      } else if (!(reason instanceof DOMException && reason.name === "AbortError"))
+      if (!(reason instanceof DOMException && reason.name === "AbortError"))
         setError("Couldn’t play the track. Press Play to try again.")
     } finally { if (request === attempt.current) setLoading(false) }
   }, [])
+
+  useImperativeHandle(ref, () => ({ start: () => {
+    if (audioRef.current) audioRef.current.volume = .35
+    void start()
+  } }), [start])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -46,28 +44,12 @@ function MusicPlayer() {
     audio.volume = .35
     setVolume(audio.volume)
     setAdjustable(audio.volume === .35)
-    const retry = (event: Event) => {
-      if (!autoPending.current || !event.isTrusted) return
-      if (event.target instanceof Element && event.target.closest(".music-stamp")) return
-      if (event instanceof KeyboardEvent && ["Tab", "Escape", "Shift", "Control", "Alt", "Meta"].includes(event.key)) return
-      void start(true)
-    }
-    const clear = () => {
-      document.removeEventListener("click", retry)
-      document.removeEventListener("keydown", retry)
-    }
-    document.addEventListener("click", retry)
-    document.addEventListener("keydown", retry)
-    audio.addEventListener("playing", clear, { once: true })
-    void start(true)
-    return () => { clear(); audio.removeEventListener("playing", clear); autoPending.current = false; ++attempt.current; audio.pause() }
-  }, [start])
+    return () => { ++attempt.current; audio.pause() }
+  }, [])
 
   const toggle = () => {
     const audio = audioRef.current
     if (!audio) return
-    autoPending.current = false
-    setBlocked(false)
     if (!audio.paused || loading) { ++attempt.current; audio.pause(); setLoading(false); return }
     void start()
   }
@@ -83,7 +65,7 @@ function MusicPlayer() {
   }
 
   return (
-    <div className="music-stamp" data-playing={playing && !loading && !silent} data-autoplay={blocked ? "waiting" : "ready"}>
+    <div className="music-stamp" data-playing={playing && !loading && !silent}>
       <audio ref={audioRef} src="/media/buon-vuong-mi.mp3" preload="none" loop
         onPlaying={() => { setPlaying(true); setLoading(false) }}
         onPause={() => { setPlaying(false); setLoading(false) }}
@@ -124,7 +106,7 @@ function MusicPlayer() {
             }} />
           <span aria-hidden="true">{silent ? "0" : Math.round(volume * 100)}%</span></> : <span className="music-device-volume">Use your device volume</span>}
         </div>
-        <p className="music-status" data-error={!!error} role="status">{error || (blocked ? "Music starts with your first click or tap." : loading ? "Loading the track…" : playing ? "Playing · on repeat." : "Paused.")}</p>
+        <p className="music-status" data-error={!!error} role="status">{error || (loading ? "Loading the track…" : playing ? "Playing · on repeat." : "Paused.")}</p>
       </div>
     </div>
   )

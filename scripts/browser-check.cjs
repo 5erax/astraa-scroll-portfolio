@@ -13,32 +13,55 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     const audioRequests = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('request', request => { if (request.url().includes('/media/buon-vuong-mi.mp3')) audioRequests.push(request.url()); });
+    await page.addInitScript(() => {
+      window.__playCalls = [];
+      const play = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function () {
+        window.__playCalls.push({ volume: this.volume, activation: navigator.userActivation.isActive, entry: document.querySelector('.tpp-root')?.dataset.entry });
+        return play.call(this);
+      };
+    });
     const url = process.argv[2] || 'http://localhost:3001';
     await page.goto(url, { waitUntil: 'networkidle' });
     assert.match(await page.title(), /^Astraa/);
     assert.equal(await page.locator('.tpp-root h1').textContent(), 'A developer with aneye for the interface.');
-    assert.doesNotMatch(await page.locator('.tpp-root').innerText(), /Kedhareswer|Hyderabad|Frostline|Hearth|Nordlys|7 years|40\+ launches|example\.com/);
+    assert.doesNotMatch(await page.locator('.tpp-root').textContent(), /Kedhareswer|Hyderabad|Frostline|Hearth|Nordlys|7 years|40\+ launches|example\.com/);
     const audio = page.locator('.music-stamp audio');
     const music = page.getByRole('region', { name: 'Music player controls', exact: true });
     const musicTrigger = page.getByRole('button', { name: /^Music player/ });
-    await page.locator('.music-stamp[data-autoplay=waiting]').waitFor();
-    assert.deepEqual(audioRequests, [], 'Blocked autoplay should not eagerly download the soundtrack.');
+    const enter = async target => {
+      await target.getByRole('button', { name: 'Open letter', exact: true }).click();
+      await target.locator('.tpp-root[data-entry=entered]').waitFor();
+    };
+    assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert && getComputedStyle(node).visibility === 'hidden'), true);
+    assert.equal(await page.getByRole('navigation', { name: 'Chapters' }).count(), 0, 'The sealed letter must hide the portfolio from accessibility navigation.');
+    await page.mouse.wheel(0, 600);
+    assert.equal(await page.evaluate(() => scrollY), 0, 'The sealed letter must lock background scrolling.');
+    assert.deepEqual(audioRequests, [], 'The sealed letter must not download or start the soundtrack.');
+    assert.deepEqual(await page.evaluate(() => window.__playCalls), []);
     assert.equal(await audio.evaluate(node => node.paused && !node.autoplay && node.loop), true);
     assert.equal(await audio.evaluate(node => node.volume), .35);
+    await page.screenshot({ path: 'outputs/astraa-entry-sealed.png' });
+    await page.getByRole('button', { name: 'Open letter', exact: true }).click();
+    assert.equal(await page.locator('.tpp-root').getAttribute('data-entry'), 'opening');
+    assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert), true);
+    assert.deepEqual(await page.evaluate(() => window.__playCalls), [{ volume: .35, activation: true, entry: 'sealed' }], 'Play must run synchronously inside the opening click at 35%.');
+    await page.waitForTimeout(350);
+    await page.screenshot({ path: 'outputs/astraa-entry-opening.png' });
+    await page.locator('.tpp-root[data-entry=entered]').waitFor();
+    assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert), false);
+    assert.equal(await page.getByRole('button', { name: 'Astraa', exact: true }).evaluate(node => node === document.activeElement), true);
+    await page.waitForFunction(() => { const media = document.querySelector('.music-stamp audio'); return !media.paused && media.currentTime > .2; });
     await musicTrigger.click();
     const play = page.getByRole('button', { name: 'Play background music', exact: true });
-    assert.equal(await play.evaluate(node => node === document.activeElement), true, 'Opening the player should focus Play.');
+    assert.equal(await page.getByRole('button', { name: 'Pause background music', exact: true }).evaluate(node => node === document.activeElement), true, 'Opening the player should focus the playback control.');
     const hud = await music.boundingBox();
     assert.ok(hud.width <= 250 && hud.height <= 170, 'The music HUD must stay compact.');
     assert.match(await music.getByRole('heading').evaluate(node => getComputedStyle(node).fontFamily), /system-ui/);
     assert.equal(await music.getByRole('heading').textContent(), 'Buồn vương mi');
-    await page.keyboard.press('Escape');
-    await page.getByRole('button', { name: 'Astraa', exact: true }).click();
-    await page.waitForFunction(() => { const media = document.querySelector('.music-stamp audio'); return !media.paused && media.currentTime > .2; });
     assert.ok(audioRequests.length > 0);
     assert.ok(await audio.evaluate(node => Number.isFinite(node.duration) && node.duration > 0));
-    assert.equal(await audio.evaluate(node => node.volume), .35, 'The first site gesture must start blocked autoplay at 35%.');
-    await musicTrigger.click();
+    assert.equal(await audio.evaluate(node => node.volume), .35);
     await page.screenshot({ path: 'outputs/astraa-music-stamp.png' });
     const volume = page.getByRole('slider', { name: 'Music volume', exact: true });
     await volume.focus();
@@ -83,6 +106,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await audio.evaluate(node => node.paused), true, 'A manual Pause must survive later site interactions.');
     const names = ['ProZ0', 'MediMate AI', 'FinGenie', 'GeoConnect', 'CVmate', 'Ecommerce Mobile', 'MLN Web'];
     const paths = ['ProZ0', 'SEP490_FE_MedicalAIAssistant', 'FinGenie', 'geoconnect', 'CVmate', 'ecomerce-mobile', 'MLN-web'];
+    assert.equal(await page.locator('.tpp-polaroid img').count(), 7, 'Every project must have an actual preview instead of a generated landscape.');
+    const note = page.locator('.tpp-hero-note');
+    await go('Cover');
+    await note.hover();
+    await page.waitForTimeout(220);
+    assert.equal(await note.evaluate(node => getComputedStyle(node).translate), '0px -3px', 'Paper hover must work alongside its inline rotation.');
+    await go('Work');
     for (let i = 0; i < names.length; i++) {
       assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names[i]);
       assert.equal(await page.getByRole('link', { name: 'View project ↗', exact: true }).getAttribute('href'), 'https://github.com/5erax/' + paths[i]);
@@ -122,7 +152,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.screenshot({ path: 'outputs/astraa-scroll-cover-preview.png' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     await page.mouse.wheel(0, 780);
-    await page.waitForTimeout(160);
+    await page.waitForFunction(() => [...document.querySelectorAll('.tpp-ch[data-on] .tpp-light')].some(node => +node.style.opacity > .01));
     assert.ok(await page.locator('.tpp-ch[data-on] .tpp-light').evaluateAll(nodes => nodes.some(node => +node.style.opacity > .01)), 'Tearing paper should react to scroll with directional light.');
     assert.match(await page.locator('.tpp-ch[data-on] .tpp-up').first().getAttribute('style'), /rotateX/);
     await page.screenshot({ path: 'outputs/astraa-scroll-tear.png' });
@@ -130,7 +160,14 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload({ waitUntil: 'networkidle' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    assert.equal(await audio.evaluate(node => node.paused), true, 'A fresh document must respect the browser autoplay block.');
+    assert.equal(await audio.evaluate(node => node.paused), true, 'A fresh document must wait for its envelope.');
+    await page.screenshot({ path: 'outputs/astraa-entry-mobile.png' });
+    const entryTouch = await page.context().newCDPSession(page);
+    const envelope = await page.getByRole('button', { name: 'Open letter', exact: true }).boundingBox();
+    await entryTouch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: envelope.x + envelope.width / 2, y: envelope.y + envelope.height / 2 }] });
+    await entryTouch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.locator('.tpp-root[data-entry=entered]').waitFor();
+    await page.waitForFunction(() => document.querySelector('audio').currentTime > .1);
     await musicTrigger.click();
     await page.screenshot({ path: 'outputs/astraa-music-mobile.png' });
     assert.equal(await music.evaluate(node => node.scrollWidth > node.clientWidth), false);
@@ -188,6 +225,9 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await page.locator('.music-record').evaluate(node => getComputedStyle(node).animationName), 'none');
     assert.match(await page.getByRole('button', { name: 'Choose chapter', exact: true }).textContent(), /03/);
     await page.reload({ waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: 'Open letter', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.locator('.tpp-root').getAttribute('data-entry'), 'entered', 'Reduced motion and keyboard entry must reveal without waiting for animation.');
     assert.equal(await page.locator('.tpp-root').getAttribute('data-mode'), 'stack');
     assert.equal(await page.locator('.tpp-ch').count(), 5);
     await page.getByRole('button', { name: 'Choose chapter', exact: true }).click();
@@ -199,6 +239,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       await page.setViewportSize({ width, height });
       await page.goto(url, { waitUntil: 'networkidle' });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+      await enter(page);
       if (width === 320) {
         assert.equal(await page.locator('.tpp-root').getAttribute('data-mode'), 'stack');
         await musicTrigger.click();
@@ -216,8 +257,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     failedMedia.on('pageerror', error => errors.push(error.message));
     await failedMedia.route('**/media/buon-vuong-mi.mp3', route => route.fulfill({ status: 503, body: 'Unavailable' }));
     await failedMedia.goto(url, { waitUntil: 'networkidle' });
+    await enter(failedMedia);
     await failedMedia.getByRole('button', { name: 'Music player', exact: true }).click();
-    await failedMedia.getByRole('button', { name: 'Play background music', exact: true }).click();
     await failedMedia.waitForFunction(() => /unavailable|Couldn’t play/.test(document.querySelector('.music-status').textContent));
     assert.equal(await failedMedia.locator('audio').evaluate(node => node.paused), true);
     await failedMedia.unroute('**/media/buon-vuong-mi.mp3');
@@ -231,7 +272,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     const deviceVolume = await browser.newPage();
     await deviceVolume.addInitScript(() => Object.defineProperty(HTMLMediaElement.prototype, 'volume', { configurable: true, get: () => 1, set: () => {} }));
     await deviceVolume.goto(url, { waitUntil: 'networkidle' });
-    await deviceVolume.getByRole('button', { name: 'Music player', exact: true }).click();
+    await enter(deviceVolume);
+    await deviceVolume.getByRole('button', { name: /^Music player/ }).click();
     assert.equal(await deviceVolume.getByRole('slider', { name: 'Music volume', exact: true }).count(), 0, 'A read-only volume API must use the device controls.');
     assert.equal(await deviceVolume.getByText('Use your device volume', { exact: true }).isVisible(), true);
     await deviceVolume.close();
@@ -245,9 +287,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
         document.addEventListener('play', event => { if (event.target instanceof HTMLAudioElement) window.__initialPlayVolume.push(event.target.volume); }, true);
       });
       await allowed.goto(url, { waitUntil: 'networkidle' });
+      assert.equal(await allowed.locator('audio').evaluate(node => node.paused && node.currentTime === 0), true, 'Even permissive browsers must wait for the envelope.');
+      await allowed.getByRole('button', { name: 'Open letter', exact: true }).focus();
+      await allowed.keyboard.press('Space');
+      await allowed.locator('.tpp-root[data-entry=entered]').waitFor();
       await allowed.waitForFunction(() => document.querySelector('audio').currentTime > .2);
       assert.equal(await allowed.locator('audio').evaluate(node => node.volume), .35);
-      assert.deepEqual(await allowed.evaluate(() => window.__initialPlayVolume), [.35], 'Autoplay must set volume before the first sound.');
+      assert.deepEqual(await allowed.evaluate(() => window.__initialPlayVolume), [.35], 'Envelope entry must set volume before the first sound.');
       await allowed.getByRole('button', { name: 'Music player — playing', exact: true }).click();
       await allowed.getByRole('button', { name: 'Pause background music', exact: true }).click();
       await allowed.keyboard.press('Escape');
@@ -255,6 +301,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
     } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: 35% permitted autoplay and blocked-autoplay gesture fallback, manual Pause retention, compact HUD/system Vietnamese type, play/pause/volume/mute/seek/chapter continuity/error retry/device volume, music focus/Escape/mobile/reduced motion, existing portfolio flows, 320–1440px layouts, no browser errors.');
+    console.log('PASS: sealed/inert envelope, trusted click/touch/keyboard entry with synchronous 35% music, reduced motion/focus/scroll unlock, subtle hover, seven actual project images, manual Pause retention, compact HUD, playback/error/device-volume controls, existing portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
