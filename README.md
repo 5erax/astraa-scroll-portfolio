@@ -2,7 +2,7 @@
 
 Portfolio của **Astraa / 5erax**, phát triển từ Scroll Tear Portfolio của **Kedhareswer Naidu**. Next.js, React và Tailwind CSS; năm chương có hiệu ứng xé giấy, postcard lật, polaroid chuyển dự án và bản đồ hành trình.
 
-[Website live](https://astraa-scroll-portfolio.vercel.app) · [Repository](https://github.com/5erax/astraa-scroll-portfolio)
+[Website live](https://astraa1.vercel.app) · [Repository](https://github.com/5erax/astraa-scroll-portfolio)
 
 Thông tin lấy từ [README GitHub của Astraa](https://github.com/5erax/5erax): fullstack developer tại Việt Nam, UI và interaction, email `lagna0175@gmail.com`, LinkedIn và quá trình học/làm việc. Avatar lấy từ GitHub; artwork ProZ0 và MediMate AI từ portfolio hiện có. Các ảnh phong cảnh khác là minh họa tạo bằng SVG của template.
 
@@ -31,6 +31,8 @@ Nút `Open email draft` mở ứng dụng email bằng `mailto:` tới `lagna017
 ## Deploy
 
 Repository được liên kết với project Vercel `astraa-scroll-portfolio`. Nhánh production là `main`; các lần push tiếp theo được Vercel tự build và deploy. Không cần cấu hình backend hoặc secret cho website này. `.vercel/` và `.env*` không được commit.
+
+Domain production chính thức: `astraa1.vercel.app`, được gắn cố định trong project Vercel để tự cập nhật theo mỗi deployment.
 
 ## Kiểm tra
 
