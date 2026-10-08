@@ -27,7 +27,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       window.__playCalls = [];
       const play = HTMLMediaElement.prototype.play;
       HTMLMediaElement.prototype.play = function () {
-        window.__playCalls.push({ volume: this.volume, activation: navigator.userActivation.isActive, entry: document.querySelector('.tpp-root')?.dataset.entry });
+        if (this instanceof HTMLAudioElement) window.__playCalls.push({ volume: this.volume, activation: navigator.userActivation.isActive, entry: document.querySelector('.tpp-root')?.dataset.entry });
         return play.call(this);
       };
     });
@@ -154,7 +154,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await musicTrigger.click();
     await page.getByRole('button', { name: 'Pause background music', exact: true }).click();
     await page.getByRole('button', { name: 'Close music player', exact: true }).click();
-    await page.getByRole('button', { name: 'Turn over ↻', exact: true }).click();
+    await page.getByRole('button', { name: 'Click for more ↻', exact: true }).click();
     await page.waitForTimeout(700);
     assert.equal(await page.locator('.tpp-flip').getAttribute('data-back'), '');
     assert.equal(await page.locator('[data-side=front]').evaluate(node => node.inert), true);

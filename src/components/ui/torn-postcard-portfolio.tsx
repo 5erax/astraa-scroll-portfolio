@@ -14,6 +14,8 @@
 import * as React from "react"
 import MusicPlayer from "./music-player"
 import ProfileViews from "./profile-views"
+import EntryBackground from "./entry-background"
+import FlippablePostcard from "./flippable-postcard"
 
 export type SceneKind = "dawn" | "lake" | "sun" | "forest" | "peak" | "night" | "river"
 
@@ -402,10 +404,14 @@ const TPP_CSS = `
 .tpp-root[data-entry=sealed] .tpp-track{visibility:hidden}
 .tpp-root:not([data-entry=entered]) .tpp-track *{animation-play-state:paused!important}
 .tpp-entry{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;padding:28px 20px;background:var(--tpp-deep);color:var(--tpp-paper);overflow:clip;isolation:isolate}
+.tpp-entry-media{position:absolute;inset:0;z-index:-2;pointer-events:none}
+.tpp-entry-media img,.tpp-entry-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tpp-entry-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#08122699,#08122699 50%,#081226dd)}
+.tpp-entry-video-control{position:absolute;bottom:24px;right:28px;display:flex;align-items:center;justify-content:center;gap:8px;min-width:44px;min-height:44px;font-size:10px;letter-spacing:.05em;color:var(--tpp-paper);opacity:.85}
 .tpp-entry::before{content:"";position:absolute;inset:18px;border:1px solid rgba(242,237,226,.14);pointer-events:none}
 .tpp-entry::after{content:"";position:absolute;inset:0;background-image:var(--tpp-gd);background-size:192px;pointer-events:none;z-index:-1}
 .tpp-entry-heading{text-align:center;margin:0}
-.tpp-entry-heading span{display:block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;opacity:.7}
+.tpp-entry-heading span{display:block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;opacity:.9}
 .tpp-entry-heading strong{font-family:var(--tpp-serif);font-size:clamp(28px,5vw,42px);font-weight:400;line-height:1.2}
 .tpp-root .tpp-entry-button{position:relative;width:min(420px,78vw);aspect-ratio:1.6;perspective:1200px;isolation:isolate;outline-offset:16px;flex-shrink:0}
 .tpp-entry-envelope{position:absolute;inset:0;background:#d6cbb8;border:1px solid #d7cbb6;border-radius:3px;box-shadow:0 24px 52px -20px rgba(0,0,0,.7);transform-style:preserve-3d;transition:transform .25s cubic-bezier(.23,1,.32,1)}
@@ -431,9 +437,9 @@ const TPP_CSS = `
 .tpp-entry-address{position:absolute;left:7%;bottom:10%;z-index:7;color:var(--tpp-ink);font-size:10px;line-height:1.8;letter-spacing:.12em;text-transform:uppercase}
 .tpp-entry-postmark{position:absolute;right:7%;bottom:10%;z-index:7;color:var(--tpp-accent);border:1px solid currentColor;border-radius:50%;width:54px;height:54px;display:grid;place-items:center;font-size:8px;letter-spacing:.05em;text-align:center;line-height:1.4;transform:rotate(-14deg)}
 .tpp-entry-caption{text-align:center;line-height:1.7;margin:0;font-size:12px;letter-spacing:.12em}
-.tpp-entry-caption small{display:block;font-size:10px;letter-spacing:.06em;opacity:.6}
+.tpp-entry-caption small{display:block;font-size:10px;letter-spacing:.06em;opacity:.8}
 .tpp-entry-caption-arrow{display:inline-block;margin-left:6px;transition:transform .2s cubic-bezier(.23,1,.32,1)}
-.tpp-entry-footer{position:absolute;bottom:36px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.5}
+.tpp-entry-footer{position:absolute;bottom:36px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.75}
 .tpp-entry[data-opening]{animation:tpp-entry-exit .9s ease-out both;pointer-events:none}
 .tpp-entry[data-opening] :is(.tpp-entry-heading,.tpp-entry-caption,.tpp-entry-footer){opacity:0;transition:opacity .15s ease-out}
 .tpp-entry[data-opening] .tpp-entry-flap{transform:rotateX(-180deg);z-index:2;transition-duration:.4s,0s}
@@ -442,6 +448,7 @@ const TPP_CSS = `
 .tpp-entry[data-opening] .tpp-entry-letter{transform:translateY(-50%) rotate(-2deg);transition-duration:.5s;transition-delay:.16s}
 @keyframes tpp-entry-exit{0%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-12px)}}
 @media(max-height:600px){.tpp-entry{gap:24px}.tpp-root .tpp-entry-button{width:min(340px,65vw)}.tpp-entry-footer{bottom:24px}}
+@media(max-width:760px){.tpp-entry-video-control{bottom:58px;right:20px}.tpp-entry-video-control span:last-child{display:none}}
 @media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
  .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-envelope{transform:rotateX(6deg) rotateY(-7deg) rotateZ(-1deg)}
  .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-flap{transform:rotateX(-24deg)}
@@ -538,9 +545,14 @@ const TPP_CSS = `
 
 .tpp-card3d{display:grid;perspective:1600px}
 .tpp-card3d>*{grid-area:1/1}
-.tpp-flip{display:grid;transition:transform .55s cubic-bezier(.23,1,.32,1);transform-style:preserve-3d}
+.tpp-flip{display:grid;transition:transform .3s cubic-bezier(.23,1,.32,1);transform-style:preserve-3d;touch-action:pan-y pinch-zoom}
 .tpp-flip>*{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .tpp-flip[data-back]{transform:rotateY(180deg)}
+.tpp-postcard-face{position:relative;min-height:0;isolation:isolate}
+.tpp-root .tpp-postcard-hit{position:absolute;inset:0;width:100%;height:100%;z-index:1;cursor:grab;border-radius:3px}
+.tpp-flip[data-dragging] .tpp-postcard-hit{cursor:grabbing}
+.tpp-postcard-face :is(a,button):not(.tpp-postcard-hit){position:relative;z-index:2}
+.tpp-postcard-face .tpp-snapshot{z-index:2}
 .tpp-back{transform:rotateY(180deg)}
 .tpp-postcard{width:min(800px,88cqw,calc((var(--seam) * 100cqh - 150px) * 1.66));aspect-ratio:1.62/1}
 .tpp-pc-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(12px,2cqw,26px);height:100%;padding:clamp(14px,2.2cqw,26px)}
@@ -583,15 +595,15 @@ const TPP_CSS = `
 .tpp-squirrel .tpp-sq-head{transform-box:view-box;transform-origin:112px 96px;transition:transform .5s}
 .tpp-squirrel:hover .tpp-sq-head{transform:rotate(-8deg)}
 
-.tpp-pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--tpp-ink);transition:transform .3s}
-.tpp-pin:hover{transform:translate(-50%,-100%) translateY(-3px)}
+.tpp-pin{position:absolute;width:44px;height:44px;transform:translate(-50%,-50%);display:grid;place-items:center;color:var(--tpp-ink)}
 .tpp-pin-dot{width:12px;height:12px;border-radius:99px;background:var(--tpp-paper);border:2px solid var(--tpp-ink);transition:background .3s,transform .3s}
 .tpp-pin[aria-pressed=true] .tpp-pin-dot{background:var(--tpp-accent);border-color:var(--tpp-accent);transform:scale(1.3)}
-.tpp-pin-y{font-family:var(--tpp-serif);font-size:15px;font-weight:600;letter-spacing:.06em}
+.tpp-pin-y{position:absolute;left:50%;bottom:calc(50% + 16px);transform:translateX(-50%);white-space:nowrap;line-height:1.2;font-family:var(--tpp-serif);font-size:15px;font-weight:600;letter-spacing:.06em}
 .tpp-walker{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:99px;border:1.5px dashed var(--tpp-accent);transition:left .9s cubic-bezier(.4,.1,.2,1),top .9s cubic-bezier(.4,.1,.2,1);pointer-events:none;animation:tpp-spin 6s linear infinite}
 @keyframes tpp-spin{to{rotate:360deg}}
 .tpp-progress{transition:stroke-dashoffset .9s cubic-bezier(.4,.1,.2,1)}
-.tpp-stop{position:absolute;width:min(300px,40cqw);transition:left .6s cubic-bezier(.2,.8,.2,1),top .6s cubic-bezier(.2,.8,.2,1)}
+.tpp-stop{position:relative;width:min(520px,100%);margin-inline:auto;flex-shrink:0}
+.tpp-route-map{min-height:160px}
 
 .tpp-stamp-btn{position:relative;transition:transform .3s;opacity:.55}
 .tpp-stamp-btn[aria-pressed=true]{opacity:1;transform:rotate(-4deg) scale(1.08)}
@@ -636,7 +648,7 @@ const TPP_CSS = `
 .tpp-postcard{width:min(440px,90cqw);aspect-ratio:auto;height:min(calc(var(--seam) * 100cqh - 120px),620px)}
 .tpp-pc-grid{grid-template-columns:1fr;grid-template-rows:auto 1px 1fr;gap:12px}
 .tpp-hw{font-size:clamp(13px,3.7cqw,17px)}
-.tpp-stop{width:auto}
+.tpp-stop{width:100%}
 .tpp-note{font-size:14px}
 .tpp-rail{display:none}
 .tpp-hero-copy{top:42% !important}
@@ -1841,7 +1853,6 @@ export default function TornPostcardPortfolio({
   }, [stack])
 
   /* ---- chapter state ---- */
-  const [flipped, setFlipped] = React.useState(false)
   const [pi, setPi] = React.useState(0)
   const [flick, setFlick] = React.useState({ out: -1, into: -1, n: 0 })
   const [stop, setStop] = React.useState(stops.length - 1)
@@ -1854,13 +1865,15 @@ export default function TornPostcardPortfolio({
   const [copyError, setCopyError] = React.useState(false)
   const [messageError, setMessageError] = React.useState(false)
   const msgRef = React.useRef(null as HTMLTextAreaElement | null)
-  const flipRef = React.useRef<HTMLDivElement>(null)
+  const focusContact = React.useRef(false)
   const gesture = React.useRef({ x: 0, y: 0, swiped: false })
 
-  const turn = (back: boolean) => {
-    setFlipped(back)
-    requestAnimationFrame(() => flipRef.current?.querySelector<HTMLButtonElement>(`[data-side=${back ? "back" : "front"}] button`)?.focus({ preventScroll: true }))
-  }
+  React.useEffect(() => {
+    if (active === 4 && focusContact.current) {
+      focusContact.current = false
+      msgRef.current?.focus({ preventScroll: true })
+    }
+  }, [active])
 
   const step = (delta: number) => {
     const n = list.length
@@ -1924,7 +1937,7 @@ export default function TornPostcardPortfolio({
     const n = stops.length
     return stops.map((_, i) => {
       const t = n > 1 ? i / (n - 1) : 0.5
-      return narrow ? ([i % 2 ? 72 : 26, 8 + t * 58] as Pt) : ([8 + t * 84, 62 - Math.sin(t * Math.PI * 2.2 + 0.4) * 26] as Pt)
+      return narrow ? ([i % 2 ? 72 : 26, 18 + t * 65] as Pt) : ([8 + t * 84, 62 - Math.sin(t * Math.PI * 2.2 + 0.4) * 26] as Pt)
     })
   }, [stops, narrow])
   const trail = React.useMemo(() => {
@@ -2098,8 +2111,8 @@ export default function TornPostcardPortfolio({
             <span className="tpp-hand" style={{ color: "#2f4a76", fontSize: 18 }}>
               — {name}
             </span>
-            <button type="button" className="tpp-label flex items-center gap-2" style={{ fontSize: 10, color: pal.accent }} onClick={() => turn(true)}>
-              Turn over ↻
+            <button type="button" data-flip-control className="tpp-label flex items-center gap-2" style={{ fontSize: 10, color: pal.accent }}>
+              Click for more ↻
             </button>
           </div>
         </div>
@@ -2150,7 +2163,7 @@ export default function TornPostcardPortfolio({
           <a href={"mailto:" + email} className="tpp-label" style={{ fontSize: 10, color: pal.accent }}>
             {email}
           </a>
-          <button type="button" className="tpp-label" style={{ fontSize: 10, color: pal.accent }} onClick={() => turn(false)}>
+          <button type="button" data-flip-control className="tpp-label" style={{ fontSize: 10, color: pal.accent }}>
             ↺ Front
           </button>
         </div>
@@ -2170,30 +2183,21 @@ export default function TornPostcardPortfolio({
       upper={
         <div className="tpp-fill flex items-center justify-center" style={{ paddingTop: 56 }}>
           <Pop d={0.05} r={-4} className="tpp-wide absolute" style={{ right: "7%", top: "15%", width: "clamp(80px,9cqw,130px)" }}>
-            <div className="tpp-envelope relative" style={{ aspectRatio: "1.45", transform: "rotate(8deg)" }} aria-hidden="true">
+            <button type="button" className="tpp-envelope relative w-full" style={{ aspectRatio: "1.45", transform: "rotate(8deg)" }} aria-label="Write Astraa a letter"
+              onClick={() => { focusContact.current = true; go(4) }}>
               <div className="tpp-letter absolute" style={{ left: "10%", right: "10%", top: "-10%", height: "80%", background: "#fbfaf6", boxShadow: "0 2px 4px rgba(0,0,0,.15)" }}>
                 <div className="tpp-rule absolute" style={{ inset: "18% 12%", fontSize: 6 }} />
               </div>
-              <svg className="tpp-svg tpp-fill" viewBox="0 0 145 100" preserveAspectRatio="none">
+              <svg className="tpp-svg tpp-fill" viewBox="0 0 145 100" preserveAspectRatio="none" aria-hidden="true">
                 <rect y="20" width="145" height="80" fill="#efe7d6" />
                 <path d="M0 20 L72 66 L145 20 L145 100 L0 100 Z" fill="#e6dcc6" />
                 <path d="M0 100 L60 58 M145 100 L85 58" stroke="#cdbf9f" />
                 <rect x="104" y="72" width="30" height="22" fill="#9fb6cf" />
               </svg>
-            </div>
+            </button>
           </Pop>
           <Pop d={0.12} r={-3}>
-            <div className="tpp-card3d tpp-postcard" style={{ transform: "rotate(-1.2deg)" }}>
-              <div ref={flipRef} className="tpp-flip" data-back={flipped ? "" : undefined}>
-                <div data-side="front" aria-hidden={flipped} inert={flipped} style={{ minHeight: 0 }}>
-                  {postcardFront}
-                </div>
-                <div className="tpp-back" data-side="back" aria-hidden={!flipped} inert={!flipped} style={{ minHeight: 0 }}>
-                  {postcardBack}
-                </div>
-              </div>
-              <span className="tpp-tape" style={{ left: -18, top: 14, transform: "rotate(-38deg)" }} />
-            </div>
+            <FlippablePostcard front={postcardFront} back={postcardBack} />
           </Pop>
         </div>
       }
@@ -2389,8 +2393,6 @@ export default function TornPostcardPortfolio({
   const px = 100 / Math.max(1, mapH)
   const st = stops[stop] || stops[0]
   const sp = pts[stop] || [50, 50]
-  const cardLeft = narrow ? undefined : sp[0] > 58 ? "calc(" + sp[0] + "% - min(300px,40cqw) - 28px)" : "calc(" + sp[0] + "% + 28px)"
-  const cardTop = narrow ? undefined : "calc(" + clamp(sp[1], 18, 70) + "% - 60px)"
 
   const routeCh = (
     <Chapter
@@ -2419,11 +2421,12 @@ export default function TornPostcardPortfolio({
               <Compass />
             </div>
           </Pop>
+          <div className="mx-[clamp(16px,5cqw,64px)] mb-[3cqh] mt-[2cqh] min-h-0 flex flex-1 flex-col gap-4">
           <div
             ref={mapRef}
-            className="relative mx-[clamp(16px,5cqw,64px)] mb-[3cqh] mt-[2cqh] min-h-0 flex-1"
+            className="tpp-route-map relative min-h-0 flex-1"
             onKeyDown={(e) => {
-              if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) {
+              if (!e.altKey && !e.ctrlKey && !e.metaKey && ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(e.key)) {
                 e.preventDefault()
                 const next = clamp(stop + (e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1), 0, stops.length - 1)
                 e.currentTarget.querySelectorAll<HTMLButtonElement>(".tpp-pin")[next]?.focus({ preventScroll: true })
@@ -2461,10 +2464,10 @@ export default function TornPostcardPortfolio({
                 </button>
               </Pop>
             ))}
+          </div>
             <Pop
               d={0.3}
               className="tpp-stop"
-              style={narrow ? { left: 0, right: 0, bottom: 0 } : { left: cardLeft, top: cardTop }}
             >
               <div className="tpp-ncard" aria-live="polite" style={{ transform: "rotate(-1deg)" }}>
                 <p className="tpp-label" style={{ fontSize: 9.5, color: pal.accent }}>
@@ -2656,6 +2659,7 @@ export default function TornPostcardPortfolio({
       {entry !== "entered" && (
         <section className="tpp-entry" aria-label={"A letter from " + name} data-opening={entry === "opening" ? "" : undefined}
           onAnimationEnd={event => { if (event.target === event.currentTarget) setEntry("entered") }}>
+          <EntryBackground />
           <h2 className="tpp-entry-heading"><span>{name} · Field journal</span><strong>A little letter, just for you.</strong></h2>
           <button type="button" className="tpp-entry-button" aria-label="Open letter" aria-describedby={uid + "-entry-caption"} aria-disabled={entry === "opening"}
             onClick={event => {

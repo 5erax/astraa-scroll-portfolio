@@ -8,6 +8,7 @@
     "start": "next start --hostname 127.0.0.1 --port 3001",
     "check": "tsc --noEmit",
     "check:browser": "node scripts/browser-check.cjs",
+    "check:motion": "node scripts/postcard-motion-check.cjs",
     "check:counter": "node scripts/profile-views-check.cjs"
   },
   "dependencies": {

@@ -79,9 +79,9 @@ const portfolio = {
     },
   ],
   route: [
-    { year: '2020–24', title: 'Computer science studies', place: 'Vietnam', text: 'Programming, databases, algorithms, and software development fundamentals. The foundation behind the interface.' },
+    { year: '2020–2024', title: 'Computer science studies', place: 'Vietnam', text: 'Programming, databases, algorithms, and software development fundamentals. The foundation behind the interface.' },
     { year: '2023', title: 'Frontend internship', place: 'Vietnam', text: 'Responsive layouts, reusable components, and interface consistency. Learning to build for the people using the product.' },
-    { year: '2024–now', title: 'Fullstack development', place: 'Vietnam', text: 'Web and mobile applications, with particular care for UI and interaction. Components, APIs, and the data flows between them.' },
+    { year: '2024–present', title: 'Fullstack development', place: 'Vietnam', text: 'Web and mobile applications, with particular care for UI and interaction. Components, APIs, and the data flows between them.' },
     { year: 'Now', title: 'Building ProZ0', place: 'Ho Chi Minh', text: 'A browser-first survival and exploration sandbox in TypeScript and PixiJS. Currently focused on the Phase 1 vertical slice.' },
   ],
   links: [

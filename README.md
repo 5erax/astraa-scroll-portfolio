@@ -42,6 +42,8 @@ Domain production chính thức: `astraa1.vercel.app`, được gắn cố đị
 
 Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` để kiểm tra tương tác bằng Chromium headless trong một browser riêng. Script dùng Playwright đã cài trong runtime Codex; ở máy khác có thể chỉ định đường dẫn module Playwright đã cài bằng biến `PLAYWRIGHT_MODULE`. Ảnh kiểm tra được lưu trong `outputs/` và không commit. Check không gửi email hoặc mở liên kết bên ngoài.
 
+`npm run check:motion -- http://localhost:3001` kiểm tra riêng nền video, pause/resume, ảnh dự phòng, click/kéo/hủy kéo/lật bằng bàn phím và touch, cuộn dọc trên postcard, lối tắt Contact và tọa độ các mốc timeline ở 320–1440 px. Cả hai browser check giả lập API lượt xem để không tăng bộ đếm production.
+
 Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
 
 ## Music stamp
@@ -107,6 +109,14 @@ Mobile có chapter index bằng native popover, hỗ trợ Escape và chạm ngo
 Form báo lỗi trống và lỗi copy email qua live status, dùng kiểm tra email native, giới hạn message 3.000 ký tự và font input tối thiểu 16 px. Việc gửi thư vẫn thực hiện trong ứng dụng email của người dùng.
 
 Đo bằng Chromium headless, desktop 1440×900, CPU throttle 4× và 24 lượt wheel từ Cover đến Contact: tổng RasterTask trong trace giảm từ khoảng 3,67 s xuống 1,35 s. Style/SVG vẫn tốn thời gian khi chuyển chương; P95 frame của lần đo mới là khoảng 183 ms trong điều kiện throttle và tracing, nên không dùng kết quả này để cam kết 60 fps trên mọi thiết bị.
+
+## Postcard, timeline và nền video
+
+About lật trong phối cảnh 3D khi bấm ảnh lớn, chữ hoặc phần giấy trống; caption đổi thành **Click for more**. Kéo ngang giữ tấm giấy dưới con trỏ, thả qua 22% chiều rộng để lật sang mặt còn lại; kéo ngắn hoặc bị hủy trả giấy về mặt hiện tại. Gallery nhỏ vẫn chuyển ảnh, email vẫn mở bản nháp. Cuộn dọc và pinch zoom dùng hành vi native. Mặt ẩn là `inert`; focus chuyển về nút lật của mặt đang xem. Bàn phím và reduced motion chuyển mặt ngay.
+
+Bao thư nhỏ ở About là nút **Write Astraa a letter**, chuyển tới Contact và focus vào ô nội dung; không tự gửi thư. Timeline ghi đầy đủ **2020–2024**, **2024–present**, giữ nhãn trên một dòng và tâm vòng tròn nằm đúng trên đường đi. Thẻ thông tin đặt bên dưới bản đồ để không che mốc khác ở desktop hoặc mobile.
+
+Màn mở đầu dùng video **heart-lake-side-wuthering-waves-moewalls-com.mp4** do Astraa cung cấp, chuyển từ 4K/60 fps, khoảng 101,7 MB, thành H.264 1280×720/30 fps khoảng **3,63 MB**, có fast start và không có audio. Poster WebP khoảng 102 KB lấy từ video. Video loop không tiếng, có nút pause/resume và tự pause khi tab bị ẩn. Nó được gỡ khỏi trang khi phong bì mở xong. Reduced motion không tải MP4; lỗi video dùng poster. Nhạc giữ cơ chế bắt đầu ở 35% sau thao tác mở thư.
 
 ## Nguồn
 
