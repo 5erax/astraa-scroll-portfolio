@@ -1,5 +1,5 @@
 {
-  "name": "scroll-tear-template",
+  "name": "astraa-scroll-portfolio",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -14,11 +14,11 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "typescript": "5.9.3",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.19.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "tailwindcss": "4.3.3",
-    "@tailwindcss/postcss": "4.3.3"
+    "typescript": "5.9.3"
   }
 }

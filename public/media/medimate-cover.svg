@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="500" viewBox="0 0 1280 500" fill="none" role="img" aria-labelledby="medimate-title medimate-desc">
+  <title id="medimate-title">MediMate AI — care, considered.</title>
+  <desc id="medimate-desc">An original project-cover illustration: a luminous sculptural glass shield with a cross-shaped opening, suspended in fine mint and gold silk contours. MediMate AI. Care begins with clarity. React, Vite, MapLibre.</desc>
+  <defs>
+    <linearGradient id="mm-paper" x1="0" y1="0" x2="1250" y2="500" gradientUnits="userSpaceOnUse"><stop stop-color="#F8FBF7"/><stop offset=".45" stop-color="#F0F7F0"/><stop offset="1" stop-color="#E4F1E9"/></linearGradient>
+    <radialGradient id="mm-halo"><stop stop-color="#FFFFFF" stop-opacity=".98"/><stop offset=".55" stop-color="#D1FAE9" stop-opacity=".6"/><stop offset="1" stop-color="#B4E4D0" stop-opacity="0"/></radialGradient>
+    <radialGradient id="mm-gold"><stop stop-color="#F7EDB9" stop-opacity=".8"/><stop offset="1" stop-color="#F6E9BE" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mm-glass" x1="785" y1="91" x2="1085" y2="389" gradientUnits="userSpaceOnUse"><stop stop-color="#FBFFFA"/><stop offset=".16" stop-color="#9BCABA"/><stop offset=".29" stop-color="#D3FFE8"/><stop offset=".42" stop-color="#73BCA9"/><stop offset=".56" stop-color="#E8FFF3"/><stop offset=".74" stop-color="#86CFC1"/><stop offset=".9" stop-color="#DDF9D3"/><stop offset="1" stop-color="#5AAB9D"/></linearGradient>
+    <linearGradient id="mm-bevel" x1="1080" y1="83" x2="870" y2="414" gradientUnits="userSpaceOnUse"><stop stop-color="#F8FFFA"/><stop offset=".2" stop-color="#719F91"/><stop offset=".46" stop-color="#C7EFCF"/><stop offset=".64" stop-color="#468E82"/><stop offset=".81" stop-color="#F7F5C3"/><stop offset="1" stop-color="#357B6D"/></linearGradient>
+    <linearGradient id="mm-rim" x1="831" y1="90" x2="1096" y2="385" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".3" stop-color="#DFFFE9"/><stop offset=".55" stop-color="#55AA94"/><stop offset=".71" stop-color="#FFFFFF"/><stop offset="1" stop-color="#BEE5C5"/></linearGradient>
+    <linearGradient id="mm-inlay" x1="887" y1="144" x2="998" y2="304" gradientUnits="userSpaceOnUse"><stop stop-color="#549380"/><stop offset=".36" stop-color="#D6F7E1"/><stop offset=".62" stop-color="#A2D9C5"/><stop offset="1" stop-color="#F7FFF3"/></linearGradient>
+    <linearGradient id="mm-silk" x1="647" y1="407" x2="1230" y2="72" gradientUnits="userSpaceOnUse"><stop stop-color="#72A894" stop-opacity="0"/><stop offset=".21" stop-color="#8DC0A9" stop-opacity=".45"/><stop offset=".48" stop-color="#509E94" stop-opacity=".56"/><stop offset=".73" stop-color="#ADBE85" stop-opacity=".55"/><stop offset="1" stop-color="#9EC8B1" stop-opacity="0"/></linearGradient>
+    <linearGradient id="mm-signal" x1="669" y1="368" x2="1222" y2="131" gradientUnits="userSpaceOnUse"><stop stop-color="#3A9C83" stop-opacity="0"/><stop offset=".36" stop-color="#56BE9F"/><stop offset=".58" stop-color="#FEFFF1"/><stop offset=".77" stop-color="#BEBA72"/><stop offset="1" stop-color="#90BB92" stop-opacity="0"/></linearGradient>
+    <linearGradient id="mm-shine" x1="799" y1="81" x2="1079" y2="359" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF" stop-opacity=".95"/><stop offset=".32" stop-color="#FFFFFF" stop-opacity=".05"/><stop offset=".59" stop-color="#FFFFFF" stop-opacity=".08"/><stop offset=".73" stop-color="#FFFFFF" stop-opacity=".8"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".08"/></linearGradient>
+    <radialGradient id="mm-pearl" cx=".32" cy=".25"><stop stop-color="#FFFFFF"/><stop offset=".27" stop-color="#E8FFEF"/><stop offset=".64" stop-color="#ABD9BF"/><stop offset=".9" stop-color="#75AF97"/><stop offset="1" stop-color="#F0F7DC"/></radialGradient>
+    <filter id="mm-soft" x="-50%" y="-100%" width="200%" height="300%"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="mm-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3"/></filter>
+    <clipPath id="mm-frame"><rect x="1" y="1" width="1278" height="498" rx="27"/></clipPath>
+    <path id="mm-shield" d="M805 124C813 103 840 94 874 88C908 82 925 65 950 65C975 65 992 82 1026 88C1060 94 1087 103 1095 124C1105 151 1093 228 1073 279C1052 333 1004 371 960 395C953 399 947 399 940 395C896 371 848 333 827 279C807 228 795 151 805 124Z"/>
+    <path id="mm-cut" d="M930 143C930 134 937 129 946 129H954C963 129 970 134 970 143V187H1013C1022 187 1028 194 1028 203V211C1028 220 1022 227 1013 227H970V272C970 281 963 287 954 287H946C937 287 930 281 930 272V227H887C878 227 872 220 872 211V203C872 194 878 187 887 187H930V143Z"/>
+    <mask id="mm-sculpture"><rect width="1280" height="500" fill="black"/><use href="#mm-shield" fill="white"/><use href="#mm-cut" fill="black"/></mask>
+    <path id="mm-loop" pathLength="1240" d="M643 377C727 430 895 426 1058 331C1220 235 1245 106 1160 94C1067 80 916 120 800 202C689 281 664 342 698 371C741 409 841 365 912 326"/>
+    <style>
+      .mm-float{animation:none;transform-origin:950px 230px}
+      .mm-shadow{animation:none;transform-origin:953px 426px}
+      .mm-trace{stroke-dasharray:56 1184;stroke-dashoffset:190;animation:none}
+      .mm-trace-second{stroke-dasharray:20 1220;stroke-dashoffset:690;animation:none}
+      .mm-glint{animation:none}
+      .mm-glint-late{animation:none}
+      .mm-contours{animation:none;transform-origin:975px 256px}
+      @keyframes mm-levitate{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-9px) rotate(-5deg)}}
+      @keyframes mm-shadow{0%,100%{opacity:.21;transform:scaleX(1)}50%{opacity:.13;transform:scaleX(.85)}}
+      @keyframes mm-stream{to{stroke-dashoffset:-1050}}
+      @keyframes mm-counterstream{to{stroke-dashoffset:1930}}
+      @keyframes mm-glimmer{0%,100%{opacity:.25}48%{opacity:.95}65%{opacity:.45}}
+      @keyframes mm-breathe{0%,100%{transform:rotate(0)}50%{transform:rotate(3deg)}}
+      @media(prefers-reduced-motion:reduce){.mm-float,.mm-shadow,.mm-trace,.mm-trace-second,.mm-glint,.mm-glint-late,.mm-contours{animation:none}.mm-float{transform:rotate(-8deg)}.mm-glint,.mm-glint-late{opacity:.7}}
+    </style>
+  </defs>
+  <g clip-path="url(#mm-frame)">
+    <rect width="1280" height="500" fill="url(#mm-paper)"/>
+    <ellipse cx="986" cy="223" rx="387" ry="307" fill="url(#mm-halo)"/>
+    <ellipse cx="1154" cy="35" rx="248" ry="214" fill="url(#mm-gold)"/>
+    <!-- Silk contour field: deliberately open, uneven, and asymmetrical. -->
+    <g class="mm-contours" stroke="url(#mm-silk)" stroke-width=".8">
+      <use href="#mm-loop"/>
+      <use href="#mm-loop" transform="translate(0 7)" opacity=".9"/>
+      <use href="#mm-loop" transform="translate(0 14)" opacity=".8"/>
+      <use href="#mm-loop" transform="translate(0 21)" opacity=".7"/>
+      <use href="#mm-loop" transform="translate(0 28)" opacity=".6"/>
+      <use href="#mm-loop" transform="translate(0 35)" opacity=".5"/>
+      <use href="#mm-loop" transform="translate(0 -7)" opacity=".9"/>
+      <use href="#mm-loop" transform="translate(0 -14)" opacity=".8"/>
+      <use href="#mm-loop" transform="translate(0 -21)" opacity=".7"/>
+      <use href="#mm-loop" transform="translate(0 -28)" opacity=".6"/>
+      <use href="#mm-loop" transform="translate(0 -35)" opacity=".5"/>
+      <use href="#mm-loop" transform="translate(0 -42)" opacity=".4"/>
+    </g>
+    <g fill="#70A795" opacity=".33">
+      <circle cx="729" cy="99" r="1.4"/><circle cx="1206" cy="312" r="1.4"/><circle cx="781" cy="405" r="1.3"/>
+      <circle cx="1165" cy="386" r="1"/><circle cx="724" cy="235" r="1"/><circle cx="1127" cy="43" r="1"/>
+      <circle cx="677" cy="296" r="1"/><circle cx="1218" cy="203" r="1"/>
+    </g>
+    <g font-family="'Segoe UI',Arial,sans-serif">
+      <text x="68" y="65" fill="#4A7161" font-size="13" letter-spacing="3">02 / FEATURED PROJECT</text>
+      <path d="M68 88H212" stroke="#9FBBAC" stroke-width=".8"/>
+      <text x="62" y="221" fill="#143D32" font-size="88" font-weight="650" letter-spacing="-5.3">MediMate</text>
+      <text x="463" y="170" fill="#51856F" font-size="23" font-weight="400" letter-spacing="-1">AI</text>
+      <text x="69" y="274" fill="#315F4D" font-family="Georgia,'Times New Roman',serif" font-size="31" font-style="italic" letter-spacing="-.6">Care begins with clarity.</text>
+      <text x="69" y="334" fill="#527564" font-size="15" letter-spacing=".1">A more thoughtful healthcare experience.</text>
+      <path d="M69 393H498" stroke="#BCCDC0" stroke-width=".8"/>
+      <text x="69" y="428" fill="#345B49" font-size="15" letter-spacing=".2">React · Vite · MapLibre</text>
+      <path d="M468 430L487 411M472 411H487V426" stroke="#43745E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="69" y="469" fill="#8BA494" font-size="10" letter-spacing="2.3">DESIGNED WITH INTENTION.</text>
+    </g>
+    <ellipse class="mm-shadow" cx="953" cy="426" rx="129" ry="15" fill="#307B62" opacity=".21" filter="url(#mm-soft)"/>
+    <g class="mm-float" transform="rotate(-8 950 230)">
+      <!-- The back edge remains visible through the cross aperture. -->
+      <g transform="translate(10 13)" mask="url(#mm-sculpture)"><use href="#mm-shield" fill="url(#mm-bevel)"/></g>
+      <g mask="url(#mm-sculpture)">
+        <use href="#mm-shield" fill="url(#mm-glass)"/>
+        <path d="M811 130C887 101 905 155 1001 119C1048 102 1070 122 1097 143V190C1037 165 1017 198 951 185C881 170 840 178 807 220Z" fill="#EFFFF1" opacity=".38"/>
+        <path d="M807 206C865 263 898 245 970 255C1032 264 1067 251 1087 229V301C1038 279 1018 318 963 300C907 282 855 313 828 279Z" fill="#4FAD96" opacity=".2"/>
+        <path d="M831 282C889 316 914 293 970 318C1018 339 1045 311 1063 302C1027 351 995 377 950 400C901 372 858 333 831 282Z" fill="#CBEDBC" opacity=".55"/>
+        <path d="M868 99C850 190 857 305 930 388" stroke="#FFFFFF" stroke-width="45" opacity=".09"/>
+        <path d="M1009 91C1048 210 991 313 958 395" stroke="#245F55" stroke-width="37" opacity=".07"/>
+        <path d="M840 111C824 178 837 257 870 305C892 337 917 358 945 375" stroke="url(#mm-shine)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M1074 137C1070 235 1039 303 973 354" stroke="#FFFFFF" stroke-opacity=".6" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M814 171C836 195 851 220 864 246M820 184C840 208 852 228 863 254M822 198C840 220 853 241 862 262M825 213C841 233 853 251 863 269M829 229C845 248 855 264 866 280M835 247C848 262 860 278 871 291" stroke="#EBFFF0" stroke-width=".8" opacity=".65"/>
+        <use href="#mm-cut" stroke="url(#mm-inlay)" stroke-width="12" stroke-linejoin="round"/>
+        <use href="#mm-cut" stroke="#FAFFF4" stroke-width="1.8"/>
+      </g>
+      <use href="#mm-shield" stroke="url(#mm-rim)" stroke-width="2.1"/>
+      <path d="M814 128C825 111 848 105 880 99C915 93 927 77 950 77C973 77 987 93 1020 99C1049 104 1075 112 1084 131" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>
+      <path d="M890 327C910 348 930 364 949 375" stroke="#FEFFE7" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+      <g class="mm-glint">
+        <circle cx="1029" cy="93" r="7" fill="#FFFFFF" opacity=".6" filter="url(#mm-glow)"/>
+        <path d="M1029 84V102M1020 93H1038" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round"/>
+      </g>
+    </g>
+    <!-- One fine signal makes a complete orbit; the second travels against it. -->
+    <use href="#mm-loop" pathLength="1240" class="mm-trace" stroke="url(#mm-signal)" stroke-width="2.2" stroke-linecap="round"/>
+    <use href="#mm-loop" pathLength="1240" class="mm-trace-second" stroke="#C8BE83" stroke-opacity=".7" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="1136" cy="152" r="13" fill="url(#mm-pearl)"/>
+    <circle cx="1132" cy="148" r="3" fill="#FFFFFF" opacity=".8"/>
+    <circle cx="753" cy="329" r="6" fill="url(#mm-pearl)"/>
+    <g class="mm-glint-late" stroke="#6BAA90" stroke-width=".9"><path d="M755 160V172M749 166H761"/><path d="M1180 352V360M1176 356H1184"/></g>
+    <path d="M1095 436H1206" stroke="#A6C7AD" stroke-width=".8"/>
+    <text x="1206" y="457" text-anchor="end" fill="#759A81" font-family="'Segoe UI',Arial,sans-serif" font-size="9" letter-spacing="2.4">CARE, CONSIDERED.</text>
+  </g>
+  <rect x="1" y="1" width="1278" height="498" rx="27" stroke="#C1D5C5"/>
+</svg>

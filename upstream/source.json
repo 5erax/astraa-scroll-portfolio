@@ -6,5 +6,6 @@
   "commit": "cd727b25f393ff5ba80fa1fa14a4887f09feb425",
   "path": "components/torn-postcard-portfolio/torn-postcard-portfolio.tsx",
   "retrieved": "2026-10-08",
-  "changes": "None. Original component copied byte-for-byte; local Next.js shell added."
+  "profileSource": "https://github.com/5erax/5erax/blob/a16fdf0fe0ff294389e0fc2c56277c9ec6f249ff/README.md",
+  "changes": "Original component preserved in the initial Git commit. Astraa profile, projects, artwork and journey are passed through props. Project and contact labels clarify repository links and the mailto draft action. Local Next.js shell and metadata added."
 }

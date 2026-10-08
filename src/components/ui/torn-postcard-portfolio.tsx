@@ -2092,7 +2092,7 @@ export default function TornPostcardPortfolio({
                 <div className="mt-4">
                   {cur.url ? (
                     <a href={cur.url} target="_blank" rel="noreferrer" className="tpp-label" style={{ fontSize: 10, color: pal.accent, borderBottom: "1px solid currentColor", paddingBottom: 2 }}>
-                      Visit the site ↗
+                      View project ↗
                     </a>
                   ) : (
                     <button type="button" className="tpp-label" style={{ fontSize: 10, color: pal.accent, borderBottom: "1px solid currentColor", paddingBottom: 2 }} onClick={() => ask(cur)}>
@@ -2353,14 +2353,14 @@ export default function TornPostcardPortfolio({
                       {copied ? "Copied ✓" : "Copy email"}
                     </button>
                     <button type="submit" className="tpp-tag" style={{ background: pal.ink, color: "#f3eee4" }}>
-                      {sent ? "Sent ✓" : "Send postcard"}
+                      {sent ? "Draft ready ↗" : "Open email draft ↗"}
                     </button>
                   </div>
                 </div>
               </div>
               {sent && (
                 <div className="tpp-postmark" style={{ right: narrow ? 0 : 6, top: narrow ? 8 : 14 }}>
-                  <Postmark text={"· SENT WITH CARE · " + location.toUpperCase() + " "} date={today} />
+                  <Postmark text={"· A NOTE FOR " + name.toUpperCase() + " · "} date={today} />
                 </div>
               )}
             </form>

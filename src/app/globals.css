@@ -2,3 +2,4 @@
 html, body { margin: 0; padding: 0; }
 body { background: #233247; }
 main { width: 100%; }
+.tpp-root img[src$="-cover.svg"] { object-position: 82% center; }
