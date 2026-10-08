@@ -9,11 +9,12 @@ const portfolio = {
   headline: ['A developer with an', 'eye for the interface.'],
   intro: 'I build web apps, mobile experiences, and worlds to explore.',
   note: 'Currently building ProZ0',
+  snap: false,
   email: 'lagna0175@gmail.com',
   about: {
     title: 'A note from Astraa',
     subtitle: 'The person behind the interface',
-    text: 'I’m Astraa, a fullstack developer in Vietnam. I care about expressive UI, thoughtful motion, and the details that make an experience feel finished. Behind the visual layer, I build the components, APIs, and data flows that make it work.',
+    text: 'I’m Astraa, a fullstack developer in Vietnam. I build expressive interfaces, thoughtful motion, and the components, APIs, and data flows behind them.',
     portrait: '/media/avatar.png',
     photo: '/media/avatar.png',
     facts: [

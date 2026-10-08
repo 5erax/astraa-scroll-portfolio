@@ -41,7 +41,14 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.deepEqual(await page.evaluate(() => window.__playCalls), []);
     assert.equal(await audio.evaluate(node => node.paused && !node.autoplay && node.loop), true);
     assert.equal(await audio.evaluate(node => node.volume), .35);
+    assert.match(await page.locator('.tpp-entry-caption').textContent(), /^Click to open the letter/);
     await page.screenshot({ path: 'outputs/astraa-entry-sealed.png' });
+    await page.getByRole('button', { name: 'Open letter', exact: true }).hover();
+    await page.waitForTimeout(280);
+    assert.match(await page.locator('.tpp-entry-envelope').evaluate(node => getComputedStyle(node).transform), /^matrix3d/);
+    assert.notEqual(await page.locator('.tpp-entry-flap').evaluate(node => getComputedStyle(node).transform), 'none');
+    assert.notEqual(await page.locator('.tpp-entry-letter').evaluate(node => getComputedStyle(node).transform), 'none');
+    await page.screenshot({ path: 'outputs/astraa-entry-hover.png' });
     await page.getByRole('button', { name: 'Open letter', exact: true }).click();
     assert.equal(await page.locator('.tpp-root').getAttribute('data-entry'), 'opening');
     assert.equal(await page.locator('.tpp-track').evaluate(node => node.inert), true);
@@ -91,6 +98,9 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await page.locator('.tpp-link[aria-current=true]').textContent(), label);
     };
     await go('About');
+    const aboutCopy = page.locator('.tpp-about-copy');
+    assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1 && getComputedStyle(node).overflowY === 'visible'), true, 'About must fit the paper without nested scrolling or clipped copy.');
+    await page.screenshot({ path: 'outputs/astraa-about-no-scrollbar.png' });
     assert.equal(await audio.evaluate(node => node.paused), false, 'Music must continue between chapters.');
     await musicTrigger.click();
     await page.getByRole('button', { name: 'Pause background music', exact: true }).click();
@@ -109,9 +119,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await page.locator('.tpp-polaroid img').count(), 7, 'Every project must have an actual preview instead of a generated landscape.');
     const note = page.locator('.tpp-hero-note');
     await go('Cover');
+    await page.mouse.move(1200, 700);
     await note.hover();
-    await page.waitForTimeout(220);
-    assert.equal(await note.evaluate(node => getComputedStyle(node).translate), '0px -3px', 'Paper hover must work alongside its inline rotation.');
+    await page.waitForFunction(() => Math.abs(parseFloat(getComputedStyle(document.querySelector('.tpp-hero-note')).translate.split(' ')[1]) + 3) < .05);
+    assert.ok(await note.evaluate(node => Math.abs(parseFloat(getComputedStyle(node).translate.split(' ')[1]) + 3) < .05), 'Paper hover must work alongside its inline rotation.');
     await go('Work');
     for (let i = 0; i < names.length; i++) {
       assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names[i]);
@@ -152,10 +163,17 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.screenshot({ path: 'outputs/astraa-scroll-cover-preview.png' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     await page.mouse.wheel(0, 780);
+    await page.locator('.tpp-root[data-scrolling]').waitFor();
+    assert.ok(await page.locator('.tpp-ch[data-on] .tpp-flake').evaluateAll(nodes => nodes.length > 0 && nodes.every(node => getComputedStyle(node).animationPlayState === 'paused')), 'Ambient snow must pause while paper follows the wheel.');
     await page.waitForFunction(() => [...document.querySelectorAll('.tpp-ch[data-on] .tpp-light')].some(node => +node.style.opacity > .01));
     assert.ok(await page.locator('.tpp-ch[data-on] .tpp-light').evaluateAll(nodes => nodes.some(node => +node.style.opacity > .01)), 'Tearing paper should react to scroll with directional light.');
     assert.match(await page.locator('.tpp-ch[data-on] .tpp-up').first().getAttribute('style'), /rotateX/);
     await page.screenshot({ path: 'outputs/astraa-scroll-tear.png' });
+    const restY = await page.evaluate(() => scrollY);
+    await page.waitForTimeout(700);
+    assert.equal(await page.evaluate(() => scrollY), restY, 'A resting wheel gesture must not trigger an unsolicited chapter snap.');
+    await page.locator('.tpp-root[data-scrolling]').waitFor({ state: 'hidden' });
+    assert.ok(await page.locator('.tpp-ch[data-on] .tpp-flake').evaluateAll(nodes => nodes.length > 0 && nodes.every(node => getComputedStyle(node).animationPlayState === 'running')), 'Ambient motion must resume once the paper settles.');
     await go('Cover');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload({ waitUntil: 'networkidle' });
@@ -185,6 +203,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.mouse.click(10, 740);
     assert.equal(await page.locator('.tpp-index').evaluate(node => node.matches(':popover-open')), false);
     await mobileGo('About');
+    assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1 && getComputedStyle(node).overflowY === 'visible'), true);
     await page.screenshot({ path: 'outputs/astraa-scroll-mobile-preview.png' });
     await mobileGo('Work');
     const deck = page.locator('.tpp-project-stack');
@@ -247,6 +266,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
         assert.ok(musicBox.x >= 0 && musicBox.x + musicBox.width <= width && musicBox.y + musicBox.height < height && musicBox.height <= 170, 'The compact music card must fit a small screen.');
         await page.screenshot({ path: 'outputs/astraa-music-small.png' });
         await page.keyboard.press('Escape');
+        await mobileGo('About');
+        assert.equal(await aboutCopy.evaluate(node => node.scrollHeight <= node.clientHeight + 1), true, 'The complete About note must fit even at 320px.');
         await mobileGo('Contact');
         const submit = await page.getByRole('button', { name: 'Open email draft ↗', exact: true }).boundingBox();
         assert.ok(submit.y >= 0 && submit.y + submit.height <= height, 'Small-screen contact action must fit the viewport.');
@@ -301,6 +322,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
     } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: sealed/inert envelope, trusted click/touch/keyboard entry with synchronous 35% music, reduced motion/focus/scroll unlock, subtle hover, seven actual project images, manual Pause retention, compact HUD, playback/error/device-volume controls, existing portfolio flows, 320–1440px layouts, no browser errors.');
+    console.log('PASS: detailed envelope with layered 3D hover, click/touch/keyboard entry and 35% music, reduced motion/focus/scroll unlock, complete About without nested scrolling, continuous wheel without auto-snap and ambient pause/resume, seven actual images, playback/error/device-volume controls, existing portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

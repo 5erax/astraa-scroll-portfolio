@@ -395,7 +395,7 @@ const TPP_CSS = `
 .tpp-svg{display:block;max-width:none}
 .tpp-fill{position:absolute;inset:0;width:100%;height:100%}
 .tpp-track{position:relative;width:100%}
-html:has(.tpp-root[data-entry]:not([data-entry=entered])){overflow:hidden}
+.tpp-root:not([data-entry=entered]){height:100svh;overflow:clip}
 .tpp-root[data-entry=sealed] .tpp-track{visibility:hidden}
 .tpp-root:not([data-entry=entered]) .tpp-track *{animation-play-state:paused!important}
 .tpp-entry{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;padding:28px 20px;background:var(--tpp-deep);color:var(--tpp-paper);overflow:clip;isolation:isolate}
@@ -405,44 +405,65 @@ html:has(.tpp-root[data-entry]:not([data-entry=entered])){overflow:hidden}
 .tpp-entry-heading span{display:block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:16px;opacity:.7}
 .tpp-entry-heading strong{font-family:var(--tpp-serif);font-size:clamp(28px,5vw,42px);font-weight:400;line-height:1.2}
 .tpp-root .tpp-entry-button{position:relative;width:min(420px,78vw);aspect-ratio:1.6;perspective:1200px;isolation:isolate;outline-offset:16px;flex-shrink:0}
-.tpp-entry-envelope{position:absolute;inset:0;background:#d6cbb8;border:1px solid #d7cbb6;border-radius:3px;box-shadow:0 24px 52px -20px rgba(0,0,0,.7);transition:translate .2s ease}
-.tpp-entry-letter{position:absolute;inset:10% 6% 4%;z-index:3;background:#fcf9f1;border:1px solid #d7cbb6;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tpp-ink);gap:12px;text-align:center}
+.tpp-entry-envelope{position:absolute;inset:0;background:#d6cbb8;border:1px solid #d7cbb6;border-radius:3px;box-shadow:0 24px 52px -20px rgba(0,0,0,.7);transform-style:preserve-3d;transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.tpp-entry-envelope::after{content:"";position:absolute;inset:0;z-index:12;pointer-events:none;background-image:var(--tpp-gl);background-size:128px;opacity:.3;border-radius:3px}
+.tpp-entry-route{position:absolute;inset:-18% -22%;width:144%;height:136%;pointer-events:none;opacity:.18;transition:opacity .2s ease}
+.tpp-entry-plane{transform-box:fill-box;transform-origin:center;transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.tpp-entry-shadow{position:absolute;inset:20px 10px -18px;background:radial-gradient(ellipse,rgba(0,0,0,.32),transparent 70%);transform:translateY(10px) scale(.95);transition:transform .25s cubic-bezier(.23,1,.32,1),opacity .2s ease;pointer-events:none}
+.tpp-entry-letter{position:absolute;inset:10% 6% 4%;z-index:3;background:#fcf9f1;border:1px solid #d7cbb6;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tpp-ink);gap:12px;text-align:center;transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.tpp-entry-letter::before{content:"";position:absolute;inset:12px;border:1px solid #b4673d33;pointer-events:none}
 .tpp-entry-letter span{font-family:var(--tpp-serif);font-size:clamp(26px,5vw,40px)}
 .tpp-entry-letter small{font-size:9px;letter-spacing:.22em;text-transform:uppercase}
 .tpp-entry-pocket{position:absolute;inset:0;z-index:5;clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%);background:linear-gradient(33deg,#e7ddcc 49.7%,#c5b69e 50%,#eee5d6 50.3%);border-radius:3px}
 .tpp-entry-fold{position:absolute;inset:0;z-index:6;clip-path:polygon(0 100%,50% 42%,100% 100%);background:linear-gradient(180deg,#e0d5c1,#efe7d8);border-radius:3px}
-.tpp-entry-flap{position:absolute;left:0;right:0;top:0;height:58%;z-index:8;transform-origin:50% 0;transform-style:preserve-3d;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(#f4ede0,#dbcfba);border-top:1px solid rgba(255,255,255,.7)}
-.tpp-entry-seal{position:absolute;left:50%;top:48%;z-index:9;display:grid;place-items:center;width:52px;height:52px;transform:translate(-50%,-50%) rotate(-8deg);border-radius:48% 52% 46% 54%;background:radial-gradient(circle at 35% 25%,#c2845b,#8b472d);color:#f2dfc4;border:3px double #d0996d;box-shadow:0 3px 4px rgba(67,32,22,.3);font-family:var(--tpp-serif);font-size:24px}
-.tpp-entry-address{position:absolute;left:7%;bottom:9%;z-index:7;color:var(--tpp-ink);font-size:10px;line-height:1.8;letter-spacing:.12em;text-transform:uppercase}
+.tpp-entry-flap{position:absolute;left:0;right:0;top:0;height:58%;z-index:8;transform-origin:50% 0;transform-style:preserve-3d;clip-path:polygon(0 0,100% 0,50% 100%);background:linear-gradient(#f4ede0,#dbcfba);border-top:1px solid rgba(255,255,255,.7);transition:transform .25s cubic-bezier(.23,1,.32,1),z-index 0s .2s}
+.tpp-entry-seal{position:absolute;left:50%;top:48%;z-index:9;display:grid;place-items:center;width:56px;height:56px;transform:translate(-50%,-50%) rotate(-8deg);border-radius:48% 52% 46% 54%;background:radial-gradient(circle at 35% 25%,#c2845b,#8b472d);color:#f2dfc4;border:3px double #d0996d;box-shadow:0 3px 4px rgba(67,32,22,.3),inset 0 1px 3px #efbf8877,inset 0 -2px 4px #4f201e77;font-family:var(--tpp-serif);font-size:26px;text-shadow:0 1px 1px #572913;overflow:clip;transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.tpp-entry-seal::after{content:"";position:absolute;inset:-20px;background:linear-gradient(110deg,transparent 35%,#fff4cc55 48%,transparent 61%);transform:translateX(-100%);transition:transform .5s cubic-bezier(.23,1,.32,1);pointer-events:none}
+.tpp-entry-airmail{position:absolute;inset:7px;z-index:10;border:2px solid transparent;border-image:repeating-linear-gradient(135deg,#637f9d 0 8px,transparent 8px 16px,#b4673d 16px 24px,transparent 24px 32px) 2;opacity:.6;pointer-events:none}
+.tpp-entry-stamp{position:absolute;right:6%;top:8%;z-index:9;width:48px;height:62px;background:#f9f5ea;padding:5px;transform:rotate(5deg);box-shadow:0 2px 3px #2c201e33;clip-path:polygon(0 0,10% 3%,20% 0,30% 3%,40% 0,50% 3%,60% 0,70% 3%,80% 0,90% 3%,100% 0,97% 10%,100% 20%,97% 30%,100% 40%,97% 50%,100% 60%,97% 70%,100% 80%,97% 90%,100% 100%,90% 97%,80% 100%,70% 97%,60% 100%,50% 97%,40% 100%,30% 97%,20% 100%,10% 97%,0 100%,3% 90%,0 80%,3% 70%,0 60%,3% 50%,0 40%,3% 30%,0 20%,3% 10%);transition:transform .25s cubic-bezier(.23,1,.32,1)}
+.tpp-entry-stamp img{display:block;width:100%;height:39px;object-fit:cover}
+.tpp-entry-stamp small{display:block;text-align:center;font-size:6px;letter-spacing:.12em;color:var(--tpp-ink);margin-top:3px}
+.tpp-entry-cancel{position:absolute;right:10%;top:19%;z-index:10;width:96px;height:40px;transform:rotate(-15deg);color:var(--tpp-ink);opacity:.42;pointer-events:none}
+.tpp-entry-address{position:absolute;left:7%;bottom:10%;z-index:7;color:var(--tpp-ink);font-size:10px;line-height:1.8;letter-spacing:.12em;text-transform:uppercase}
 .tpp-entry-postmark{position:absolute;right:7%;bottom:10%;z-index:7;color:var(--tpp-accent);border:1px solid currentColor;border-radius:50%;width:54px;height:54px;display:grid;place-items:center;font-size:8px;letter-spacing:.05em;text-align:center;line-height:1.4;transform:rotate(-14deg)}
 .tpp-entry-caption{text-align:center;line-height:1.7;margin:0;font-size:12px;letter-spacing:.12em}
 .tpp-entry-caption small{display:block;font-size:10px;letter-spacing:.06em;opacity:.6}
+.tpp-entry-caption-arrow{display:inline-block;margin-left:6px;transition:transform .2s cubic-bezier(.23,1,.32,1)}
 .tpp-entry-footer{position:absolute;bottom:36px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.5}
 .tpp-entry[data-opening]{animation:tpp-entry-exit .9s ease-out both;pointer-events:none}
 .tpp-entry[data-opening] :is(.tpp-entry-heading,.tpp-entry-caption,.tpp-entry-footer){opacity:0;transition:opacity .15s ease-out}
-.tpp-entry[data-opening] .tpp-entry-flap{animation:tpp-open-flap .4s cubic-bezier(.23,1,.32,1) both}
+.tpp-entry[data-opening] .tpp-entry-flap{transform:rotateX(-180deg);z-index:2;transition-duration:.4s,0s}
 .tpp-entry[data-opening] .tpp-entry-seal{transition:opacity .15s ease-out;opacity:0}
-.tpp-entry[data-opening] .tpp-entry-letter{animation:tpp-open-letter .5s cubic-bezier(.23,1,.32,1) .22s both}
-@keyframes tpp-open-flap{0%{transform:rotateX(0);z-index:8}49%{z-index:8}50%{z-index:2}100%{transform:rotateX(180deg);z-index:2}}
-@keyframes tpp-open-letter{to{transform:translateY(-50%) rotate(-2deg)}}
+.tpp-entry[data-opening] .tpp-entry-letter{transform:translateY(-50%) rotate(-2deg);transition-duration:.5s;transition-delay:.16s}
 @keyframes tpp-entry-exit{0%,70%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-12px)}}
 @media(max-height:600px){.tpp-entry{gap:24px}.tpp-root .tpp-entry-button{width:min(340px,65vw)}.tpp-entry-footer{bottom:24px}}
 @media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
- .tpp-entry-button:hover .tpp-entry-envelope{translate:0 -3px}
+ .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-envelope{transform:rotateX(6deg) rotateY(-7deg) rotateZ(-1deg)}
+ .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-flap{transform:rotateX(-24deg)}
+ .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-letter{transform:translateY(-15%) rotate(-1deg)}
+ .tpp-entry:not([data-opening]) .tpp-entry-button:hover .tpp-entry-seal{transform:translate(-50%,-50%) rotate(-14deg) scale(.96)}
+ .tpp-entry-button:hover .tpp-entry-seal::after{transform:translateX(100%)}
+ .tpp-entry-button:hover .tpp-entry-stamp{transform:rotate(1deg) translateY(-2px)}
+ .tpp-entry-button:hover .tpp-entry-shadow{transform:translateY(18px) scale(.88);opacity:.7}
+ .tpp-entry-button:hover .tpp-entry-route{opacity:.35}
+ .tpp-entry-button:hover .tpp-entry-plane{transform:translate(10px,-6px) rotate(-8deg)}
+ .tpp-entry-button:hover~.tpp-entry-caption .tpp-entry-caption-arrow{transform:translate(3px,-3px)}
  .tpp-root :is(.tpp-note,.tpp-envelope,.tpp-project-stack,.tpp-snapshot,.tpp-logo-button){transition:translate .2s ease,rotate .2s ease}
  .tpp-note:hover,.tpp-envelope:hover,.tpp-project-stack:hover,.tpp-snapshot:hover{translate:0 -3px}
  .tpp-snapshot:hover,.tpp-logo-button:hover{rotate:1deg}
  .tpp-envelope:hover .tpp-letter{transform:translateY(-10px)}
 }
 .tpp-stage{position:sticky;top:0;width:100%;overflow:clip;container-type:size;container-name:tpp;background:var(--tpp-deep)}
-.tpp-ch{position:absolute;inset:0;visibility:hidden}
+.tpp-ch{position:absolute;inset:0;visibility:hidden;contain:layout paint style}
 .tpp-ch[data-on]{visibility:visible}
+.tpp-ch[data-on] .tpp-pop{will-change:transform,opacity}
 .tpp-in{position:absolute;inset:0;transform-origin:50% 55%;perspective:1800px}
 .tpp-ch:not([data-on]) *{animation-play-state:paused !important}
+.tpp-root[data-scrolling] :is(.tpp-flake,.tpp-twinkle,.tpp-wing,.tpp-glide,.tpp-aurora,.tpp-dash,.tpp-walker){animation-play-state:paused !important}
 .tpp-up,.tpp-lo{position:absolute;left:0;right:0;top:-40px;bottom:-40px;will-change:transform}
 .tpp-up{z-index:2;transform-origin:50% calc(var(--seam) * 100%)}
 .tpp-lo{z-index:1;transform-origin:50% calc(var(--seam) * 100%)}
-.tpp-light{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent 30%,rgba(255,249,224,.35) 70%,rgba(8,14,26,.5))}
+.tpp-light{position:absolute;inset:0;pointer-events:none;opacity:0;will-change:opacity;background:linear-gradient(180deg,transparent 30%,rgba(255,249,224,.35) 70%,rgba(8,14,26,.5))}
 .tpp-lo .tpp-light{background:linear-gradient(0deg,transparent 10%,rgba(8,14,26,.35) 80%,rgba(255,249,224,.3))}
 .tpp-sh,.tpp-fib,.tpp-shade{position:absolute;inset:0}
 .tpp-fib{background:var(--tpp-fiber)}
@@ -518,6 +539,7 @@ html:has(.tpp-root[data-entry]:not([data-entry=entered])){overflow:hidden}
 .tpp-pc-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(12px,2cqw,26px);height:100%;padding:clamp(14px,2.2cqw,26px)}
 .tpp-rule{background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(1.5em - 1px),rgba(38,54,79,.22) calc(1.5em - 1px),rgba(38,54,79,.22) 1.5em)}
 .tpp-hw{font-family:var(--tpp-hand);font-size:clamp(13px,1.45cqw,19px);line-height:1.5em;color:#2f4a76}
+.tpp-about-copy{font-size:clamp(14px,min(1.4cqw,2.3cqh),18px)}
 .tpp-envelope{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .tpp-envelope .tpp-letter{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 
@@ -690,7 +712,7 @@ const HERO_LAYERS = [
   { seed: 67, base: 870, amp: 140, top: "#222b3d", bot: "#111a2c", dp: 24, snow: 0, streaks: 0 },
 ]
 
-function HeroMountains({ uid }: { uid: string }) {
+const HeroMountains = React.memo(function HeroMountains({ uid }: { uid: string }) {
   const id = uid + "-hm"
   const layers = React.useMemo(
     () =>
@@ -746,7 +768,7 @@ function HeroMountains({ uid }: { uid: string }) {
       ))}
     </div>
   )
-}
+})
 
 /* ---------- the engraved snowy peak on fog paper ---------- */
 
@@ -823,7 +845,7 @@ function EngravedPeak({ uid, x = 1120, y = 140, flip = false }: { uid: string; x
   )
 }
 
-function FogPaper({ uid, peak = true, forest = false, seed = 5 }: { uid: string; peak?: boolean; forest?: boolean; seed?: number }) {
+const FogPaper = React.memo(function FogPaper({ uid, peak = true, forest = false, seed = 5 }: { uid: string; peak?: boolean; forest?: boolean; seed?: number }) {
   const id = uid + "-fp" + seed
   const far = React.useMemo(
     () => [
@@ -854,9 +876,9 @@ function FogPaper({ uid, peak = true, forest = false, seed = 5 }: { uid: string;
       <Grain uid={uid} opacity={0.5} />
     </div>
   )
-}
+})
 
-function NightPaper({ uid, seed = 3, trees = true, flakes = true }: { uid: string; seed?: number; trees?: boolean; flakes?: boolean }) {
+const NightPaper = React.memo(function NightPaper({ uid, seed = 3, trees = true, flakes = true }: { uid: string; seed?: number; trees?: boolean; flakes?: boolean }) {
   const id = uid + "-np" + seed
   const rows = React.useMemo(
     () => [treesD(seed * 31, -40, 1640, 1000, 120, 260, 34), treesD(seed * 37, -40, 1640, 1010, 180, 380, 40)],
@@ -885,7 +907,7 @@ function NightPaper({ uid, seed = 3, trees = true, flakes = true }: { uid: strin
       {flakes && <Snow seed={seed * 101} />}
     </div>
   )
-}
+})
 
 /* ---------- creatures and props ---------- */
 
@@ -1557,6 +1579,7 @@ export default function TornPostcardPortfolio({
   React.useEffect(() => {
     const els = chRefs.current
     const painters = els.map(el => el ? createPainter(el) : null)
+    const root = rootRef.current
     if (modeRef.current !== stack) {
       go(activeRef.current)
       modeRef.current = stack
@@ -1593,7 +1616,6 @@ export default function TornPostcardPortfolio({
     let timer = 0
     let H = stageRef.current?.offsetHeight || window.innerHeight
     let trackTop = (trackRef.current?.getBoundingClientRect().top || 0) + window.scrollY
-    const hasScrollEnd = "onscrollend" in document
 
     const unit = () => H * scrollPerChapter
     const measure = () => {
@@ -1625,9 +1647,10 @@ export default function TornPostcardPortfolio({
         activeRef.current = shown
         els.forEach((el, i) => {
           if (!el) return
-          el.inert = i !== shown
-          if (i !== shown) el.setAttribute("aria-hidden", "true")
-          else el.removeAttribute("aria-hidden")
+          const hidden = i !== shown
+          if (el.inert !== hidden) el.inert = hidden
+          if (hidden && el.getAttribute("aria-hidden") !== "true") el.setAttribute("aria-hidden", "true")
+          else if (!hidden && el.hasAttribute("aria-hidden")) el.removeAttribute("aria-hidden")
         })
         setActive(shown)
       }
@@ -1648,7 +1671,11 @@ export default function TornPostcardPortfolio({
       }
     }
     const settle = () => {
-      if (!snap || touching) return
+      if (touching) return
+      // Give the paper priority until its easing has caught up with native scroll.
+      if (raf) { timer = window.setTimeout(settle, 50); return }
+      root?.removeAttribute("data-scrolling")
+      if (!snap) return
       const t = trackRef.current
       if (!t) return
       const goal = snapTarget(target, N, HOLD, dir)
@@ -1660,15 +1687,19 @@ export default function TornPostcardPortfolio({
       const y = window.scrollY
       if (y !== lastY) dir = y > lastY ? 1 : -1
       lastY = y
+      if (root && !root.hasAttribute("data-scrolling")) root.setAttribute("data-scrolling", "")
       kick()
       window.clearTimeout(timer)
-      if (!hasScrollEnd) timer = window.setTimeout(settle, 350)
+      timer = window.setTimeout(settle, 350)
     }
     const onScrollEnd = () => {
       window.clearTimeout(timer)
       timer = window.setTimeout(settle, 220)
     }
-    const onInput = () => window.clearTimeout(timer)
+    const onInput = () => {
+      window.clearTimeout(timer)
+      if (root?.hasAttribute("data-scrolling")) timer = window.setTimeout(settle, 350)
+    }
     const onTouchStart = () => {
       touching = true
       onInput()
@@ -1676,7 +1707,7 @@ export default function TornPostcardPortfolio({
     const onTouchEnd = () => {
       touching = false
       window.clearTimeout(timer)
-      if (!hasScrollEnd) timer = window.setTimeout(settle, 350)
+      timer = window.setTimeout(settle, 350)
     }
 
     measure()
@@ -1699,6 +1730,7 @@ export default function TornPostcardPortfolio({
     return () => {
       cancelAnimationFrame(raf)
       window.clearTimeout(timer)
+      root?.removeAttribute("data-scrolling")
       ro.disconnect()
       removeEventListener("scroll", onScroll)
       document.removeEventListener("scrollend", onScrollEnd)
@@ -2022,7 +2054,7 @@ export default function TornPostcardPortfolio({
               </Stamp>
             </div>
           </div>
-          <div className="tpp-rule tpp-hw mt-3 min-h-0 flex-1 overflow-y-auto" style={{ textIndent: "2.5em" }}>
+          <div className="tpp-about-copy tpp-rule tpp-hw mt-3 flex-1" style={{ textIndent: "2.5em" }}>
             {ab.text}
           </div>
           <div className="mt-2 flex items-center justify-between gap-2">
@@ -2596,15 +2628,24 @@ export default function TornPostcardPortfolio({
               window.scrollTo({ top: 0, behavior: "instant" })
               setEntry(reduced || event.detail === 0 ? "entered" : "opening")
             }}>
+            <svg className="tpp-entry-route" viewBox="-100 -70 620 420" fill="none" aria-hidden="true">
+              <path d="M-70 285 C-90 165 5 80 150 55 S475 18 500 140 S410 360 350 340 C240 302 355 165 480 278" stroke="currentColor" strokeDasharray="3 7" />
+              <g className="tpp-entry-plane" stroke="currentColor" strokeWidth="1.2"><path d="m480 278 24-14-8 24-5-9-11-1Zm24-14-13 15" /></g>
+              <path d="M-58 64h12m-6-6v12M486 332h12m-6-6v12" stroke="currentColor" />
+            </svg>
+            <span className="tpp-entry-shadow" aria-hidden="true" />
             <span className="tpp-entry-envelope" aria-hidden="true">
               <span className="tpp-entry-letter"><small>Inside this letter</small><span>{name}</span><small>Work · Ideas · A little music</small></span>
               <span className="tpp-entry-pocket" /><span className="tpp-entry-fold" /><span className="tpp-entry-flap" />
+              <span className="tpp-entry-airmail" />
+              {ab.portrait && <span className="tpp-entry-stamp"><img src={ab.portrait} alt="" draggable="false" /><small>{name}</small></span>}
+              <svg className="tpp-entry-cancel" viewBox="0 0 96 40" fill="none" aria-hidden="true"><circle cx="22" cy="20" r="17" stroke="currentColor" /><path d="M37 9c10-8 13 8 25 0s14 8 26 0M39 20c10-8 13 8 25 0s14 8 26 0M37 31c10-8 13 8 25 0s14 8 26 0" stroke="currentColor" /><text x="22" y="23" textAnchor="middle" fill="currentColor" fontSize="7">BY AIR</text></svg>
               <span className="tpp-entry-seal">{mark}</span>
               <span className="tpp-entry-address">To: You<br />From: {name}</span>
               <span className="tpp-entry-postmark">By air<br />Vietnam</span>
             </span>
           </button>
-          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>Open the letter<small>Enter the portfolio · music starts at 35%</small></p>
+          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>Click to open the letter<span className="tpp-entry-caption-arrow" aria-hidden="true">↗</span><small>Enter the portfolio · music starts at 35%</small></p>
           <span className="tpp-entry-footer">{location} · {since}</span>
         </section>
       )}

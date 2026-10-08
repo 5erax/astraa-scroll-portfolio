@@ -40,13 +40,15 @@ Domain production chính thức: `astraa1.vercel.app`, được gắn cố đị
 
 Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` để kiểm tra tương tác bằng Chromium headless trong một browser riêng. Script dùng Playwright đã cài trong runtime Codex; ở máy khác có thể chỉ định đường dẫn module Playwright đã cài bằng biến `PLAYWRIGHT_MODULE`. Ảnh kiểm tra được lưu trong `outputs/` và không commit. Check không gửi email hoặc mở liên kết bên ngoài.
 
-Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
+Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
 
 ## Music stamp
 
 Nút **Music** trong thanh điều hướng mở thẻ giấy nhỏ, phát file **Buồn vương mi — htingale** do Astraa cung cấp. File gốc được sao chép nguyên vẹn thành `public/media/buon-vuong-mi.mp3` (khoảng 1,16 MB); không tải từ dịch vụ âm nhạc bên ngoài.
 
-Trang bắt đầu bằng một bao thư giấy với seal chữ A. Portfolio được ẩn và `inert`, khóa cuộn cho đến khi mở. Click/tap **Open letter** gọi `audio.play()` trực tiếp trong chính handler, sau khi đặt volume 35%, rồi mới chạy nắp thư 3D, kéo lá thư lên và chuyển sang trang hiện tại. Không gọi play sau timeout hoặc sau animation vì sẽ mất quyền user activation. Bàn phím và reduced motion mở ngay; animation có fallback khi bị ngắt và chuyển focus về thanh điều hướng khi xong. Không có âm thanh hoặc request MP3 trước khi mở, kể cả khi browser cho phép autoplay. Pause do người xem chọn không bị tương tác sau bật lại. Xem [MDN autoplay](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay).
+Trang bắt đầu bằng một bao thư giấy với seal chữ A, tem avatar, viền airmail, dấu bưu điện và vân giấy. Caption là **Click to open the letter**; button có tên accessible **Open letter**. Hover nghiêng thân thư trong phối cảnh, hé nắp, để lá thư lộ ra, xoay tem và quét sáng trên seal. Khi click, nắp và lá thư tiếp tục từ vị trí đang hover bằng CSS transition.
+
+Portfolio được ẩn và `inert`, khóa cuộn cho đến khi mở. Click/tap gọi `audio.play()` trực tiếp trong chính handler, sau khi đặt volume 35%, rồi mới chạy nắp thư 3D, kéo lá thư lên và chuyển sang trang hiện tại. Không gọi play sau timeout hoặc sau animation vì sẽ mất quyền user activation. Bàn phím và reduced motion mở ngay; animation có fallback khi bị ngắt và chuyển focus về thanh điều hướng khi xong. Không có âm thanh hoặc request MP3 trước khi mở, kể cả khi browser cho phép autoplay. Pause do người xem chọn không bị tương tác sau bật lại. Xem [MDN autoplay](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay).
 
 HUD thu gọn còn khoảng 244×150 px, dùng system font hỗ trợ tiếng Việt cho tên bài và credit. Có Play/Pause, tua bài, Mute và chỉnh volume; nhạc tiếp tục giữa năm chương. Trạng thái phát dựa trên event của media và kết quả `play()`, có báo lỗi và thử lại khi tải thất bại. Tham khảo [HTMLMediaElement.play](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play).
 
@@ -72,15 +74,19 @@ Hai ảnh repository được ghi rõ **source repository · preview pending**. 
 
 ## Motion & UX
 
-Giấy nghiêng trong phối cảnh và thay đổi ánh sáng theo độ mở của vết xé. Vòng animation cache các layer và kích thước, bỏ qua attribute/style không đổi, dừng khi đã bắt kịp vị trí cuộn. Hiệu ứng của chương ẩn được pause; parallax chỉ chạy với chuột và reset khi rời trang.
+Giấy nghiêng trong phối cảnh và thay đổi ánh sáng theo độ mở của vết xé. Vòng animation cache các layer và kích thước, bỏ qua attribute/style không đổi, dừng khi đã bắt kịp vị trí cuộn. Chương dùng CSS containment; các lớp giấy/nội dung/ánh sáng chuyển động được chuẩn bị bằng `will-change`. Ba nền SVG được memo để không render lại theo state âm nhạc hoặc chương.
+
+Hiệu ứng của chương ẩn được pause. Khi cuộn, tuyết, sao, cánh chim và các chuyển động nền tạm dừng để ưu tiên giấy; chúng tiếp tục khi easing đã bắt kịp vị trí cuộn. `scrollend` kết hợp debounce dự phòng đảm bảo resume trên browser cũ. Parallax chỉ chạy với chuột và reset khi rời trang.
 
 Note, bao thư nhỏ, ảnh About, chồng polaroid và logo có hover nhẹ bằng `translate`/`rotate`, tránh ghi đè transform inline của template. Chỉ chạy với pointer fine có hover và không yêu cầu reduced motion; không thêm vòng mouse tracking hoặc thư viện mới.
 
-Snap chờ `scrollend` và một khoảng nghỉ ngắn, hủy khi có input mới; browser cũ dùng debounce. Mobile có chapter index bằng native popover, hỗ trợ Escape và chạm ngoài để đóng. Gallery hỗ trợ vuốt ngang, phím mũi tên và nút lớn hơn. Reduced motion hoặc viewport thấp dùng cuộn thường để vẫn đọc được nội dung; đổi chế độ giữ nguyên chương đang xem.
+Trang Astraa đặt `snap: false`: wheel và touch giữ nguyên vị trí người xem dừng, nút chapter vẫn chuyển mượt tới chương tương ứng. Thanh cuộn hệ thống được ẩn bằng CSS, cuộn native và bàn phím vẫn hoạt động. About được biên tập cho vừa giấy, không có vùng cuộn lồng giữ con lăn.
+
+Mobile có chapter index bằng native popover, hỗ trợ Escape và chạm ngoài để đóng. Gallery hỗ trợ vuốt ngang, phím mũi tên và nút lớn hơn. Reduced motion hoặc viewport thấp dùng cuộn thường để vẫn đọc được nội dung; đổi chế độ giữ nguyên chương đang xem.
 
 Form báo lỗi trống và lỗi copy email qua live status, dùng kiểm tra email native, giới hạn message 3.000 ký tự và font input tối thiểu 16 px. Việc gửi thư vẫn thực hiện trong ứng dụng email của người dùng.
 
-Đo bằng Chromium headless, desktop 1440×900 và CPU throttle 4× với cùng 24 lượt wheel: thời gian JavaScript giảm từ khoảng 0,39 s xuống 0,29 s; style recalculation giảm từ khoảng 1,63 s xuống 1,21 s. P95 frame vẫn khoảng 83 ms ở điều kiện này, nên đây là giảm chi phí xử lý, chưa phải đảm bảo 60 fps trên máy yếu. SVG raster/paint vẫn là phần tốn thời gian trong trace.
+Đo bằng Chromium headless, desktop 1440×900, CPU throttle 4× và 24 lượt wheel từ Cover đến Contact: tổng RasterTask trong trace giảm từ khoảng 3,67 s xuống 1,35 s. Style/SVG vẫn tốn thời gian khi chuyển chương; P95 frame của lần đo mới là khoảng 183 ms trong điều kiện throttle và tracing, nên không dùng kết quả này để cam kết 60 fps trên mọi thiết bị.
 
 ## Nguồn
 
