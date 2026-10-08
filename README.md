@@ -50,7 +50,7 @@ Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật p
 
 Nút **Music** trong thanh điều hướng mở thẻ giấy nhỏ, phát file **Buồn vương mi — htingale** do Astraa cung cấp. File gốc được sao chép nguyên vẹn thành `public/media/buon-vuong-mi.mp3` (khoảng 1,16 MB); không tải từ dịch vụ âm nhạc bên ngoài.
 
-Trang bắt đầu bằng một bao thư giấy với seal chữ A, tem avatar, viền airmail, dấu bưu điện và vân giấy. Caption là **Click to open the letter**; button có tên accessible **Open letter**. Hover nghiêng thân thư trong phối cảnh, hé nắp, để lá thư lộ ra, xoay tem và quét sáng trên seal. Khi click, nắp và lá thư tiếp tục từ vị trí đang hover bằng CSS transition.
+Trang bắt đầu bằng một bao thư giấy với seal chữ A, tem avatar, viền airmail, dấu bưu điện và vân giấy. Caption là **Click to open the letter**; button có tên accessible **Open letter**. Trong lúc mã tương tác đang tải, nút chưa nhận click và caption là **Preparing your letter**; nút chỉ mở khi handler và nhạc đã sẵn sàng, tránh mất lần bấm đầu trên mạng chậm. Hover nghiêng thân thư trong phối cảnh, hé nắp, để lá thư lộ ra, xoay tem và quét sáng trên seal. Khi click, nắp và lá thư tiếp tục từ vị trí đang hover bằng CSS transition.
 
 Caption phụ chỉ còn **Enter the portfolio**, không hiển thị phần trăm âm lượng. Viền thân không có cạnh trên; dải xanh/đỏ phía trên thuộc nắp chuyển động và ẩn khi nắp lật để lộ mặt trong. Nó không còn là một lớp phủ chạy ngang lá thư.
 

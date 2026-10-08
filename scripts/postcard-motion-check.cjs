@@ -316,13 +316,21 @@ const url = process.argv[2] || 'http://localhost:3001';
     await failed.locator('.tpp-root[data-entry=entered]').waitFor();
     await failed.close();
     const early = await browser.newPage();
+    await early.route('**/_next/static/chunks/**', async route => {
+      if (route.request().resourceType() === 'script') await new Promise(resolve => setTimeout(resolve, 1200));
+      return route.continue();
+    });
     await early.route('**/api/profile-views', async route => {
       const read = route.request().method() === 'GET';
       await new Promise(resolve => setTimeout(resolve, read ? 1800 : 20));
       return route.fulfill({ json: { count: read ? 959 : 960 } });
     });
-    await early.goto(url, { waitUntil: 'domcontentloaded' });
-    await early.getByRole('button', { name: 'Open letter', exact: true }).click();
+    await early.goto(url, { waitUntil: 'commit' });
+    const open = early.getByRole('button', { name: 'Open letter', exact: true });
+    await open.waitFor();
+    assert.equal(await open.isDisabled(), true, 'The letter must not offer a click before its handler and music are ready.');
+    assert.match(await early.locator('.tpp-entry-caption').textContent(), /Preparing your letter/);
+    await open.click();
     await early.locator('.tpp-root[data-entry=entered]').waitFor();
     await early.waitForFunction(() => document.querySelector('.tpp-profile-views span')?.textContent === '960');
     await early.waitForTimeout(2000);

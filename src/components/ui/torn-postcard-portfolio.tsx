@@ -408,6 +408,7 @@ const TPP_CSS = `
 .tpp-entry-media{position:absolute;inset:0;z-index:-2;pointer-events:none}
 .tpp-entry-media img,.tpp-entry-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .tpp-entry-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#08122699,#08122699 50%,#081226dd)}
+.tpp-root .tpp-entry-button:disabled{cursor:wait}
 .tpp-entry::before{content:"";position:absolute;inset:18px;border:1px solid rgba(242,237,226,.14);pointer-events:none}
 .tpp-entry::after{content:"";position:absolute;inset:0;background-image:var(--tpp-gd);background-size:192px;pointer-events:none;z-index:-1}
 .tpp-entry-heading{text-align:center;margin:0}
@@ -1577,6 +1578,7 @@ export default function TornPostcardPortfolio({
   const rootRef = React.useRef(null as HTMLDivElement | null)
   const musicRef = React.useRef<{ start: () => void }>(null)
   const [entry, setEntry] = React.useState<"sealed" | "opening" | "entered">("sealed")
+  const [ready, setReady] = React.useState(false)
   const trackRef = React.useRef(null as HTMLDivElement | null)
   const stageRef = React.useRef(null as HTMLDivElement | null)
   const chRefs = React.useRef([] as (HTMLDivElement | null)[])
@@ -1621,6 +1623,7 @@ export default function TornPostcardPortfolio({
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
     const on = () => setReduced(mq.matches)
     on()
+    setReady(true)
     mq.addEventListener("change", on)
     return () => mq.removeEventListener("change", on)
   }, [])
@@ -2648,7 +2651,7 @@ export default function TornPostcardPortfolio({
           onAnimationEnd={event => { if (event.target === event.currentTarget) setEntry("entered") }}>
           <EntryBackground />
           <h2 className="tpp-entry-heading"><span>{name} · Field journal</span><strong>A little letter, just for you.</strong></h2>
-          <button type="button" className="tpp-entry-button" aria-label="Open letter" aria-describedby={uid + "-entry-caption"} aria-disabled={entry === "opening"}
+          <button type="button" className="tpp-entry-button" aria-label="Open letter" aria-describedby={uid + "-entry-caption"} disabled={!ready || entry === "opening"} aria-disabled={!ready || entry === "opening"}
             onClick={event => {
               if (entry !== "sealed") return
               // Call play inside this click, before any animation or asynchronous work.
@@ -2673,7 +2676,7 @@ export default function TornPostcardPortfolio({
               <span className="tpp-entry-postmark">By air<br />Vietnam</span>
             </span>
           </button>
-          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>Click to open the letter<span className="tpp-entry-caption-arrow" aria-hidden="true">↗</span><small>Enter the portfolio</small></p>
+          <p className="tpp-entry-caption" id={uid + "-entry-caption"}>{ready ? "Click to open the letter" : "Preparing your letter"}<span className="tpp-entry-caption-arrow" aria-hidden="true">↗</span><small>Enter the portfolio</small></p>
           <span className="tpp-entry-footer">{location} · {since}</span>
         </section>
       )}
