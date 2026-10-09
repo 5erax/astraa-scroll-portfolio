@@ -22,6 +22,7 @@ export type SceneKind = "dawn" | "lake" | "sun" | "forest" | "peak" | "night" | 
 
 export type PostcardProject = {
   name: string
+  repository?: string
   year?: string
   role?: string
   description?: string
@@ -558,7 +559,7 @@ const TPP_CSS = `
 .tpp-pc-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(12px,2cqw,26px);height:100%;padding:clamp(14px,2.2cqw,26px)}
 .tpp-rule{background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(1.5em - 1px),rgba(38,54,79,.22) calc(1.5em - 1px),rgba(38,54,79,.22) 1.5em)}
 .tpp-hw{font-family:var(--tpp-hand);font-size:clamp(13px,1.45cqw,19px);line-height:1.5em;color:#2f4a76}
-.tpp-fact-value{background-position:0 -.2em}
+.tpp-fact-value{background-position:0 -.2em;overflow-wrap:anywhere}
 .tpp-about-copy{font-size:clamp(14px,min(1.4cqw,2.3cqh),18px)}
 .tpp-mini-gallery{display:flex;flex-direction:column;position:relative;width:100%;height:100%;cursor:pointer;color:var(--tpp-ink);text-align:left}
 .tpp-gallery-image{display:block;position:relative;flex:1;min-height:0;background:#e4dfd5;overflow:clip}
@@ -1924,6 +1925,11 @@ export default function TornPostcardPortfolio({
 
   /* ---- route map geometry ---- */
   const [narrow, setNarrow] = React.useState(false)
+  React.useEffect(() => {
+    const pips = rootRef.current?.querySelector<HTMLElement>(".tpp-project-pips")
+    const current = pips?.querySelector<HTMLElement>("[aria-current=true]")
+    if (pips && current) pips.scrollLeft = current.offsetLeft - (pips.clientWidth - current.offsetWidth) / 2
+  }, [pi, narrow])
   const [mapAr, setMapAr] = React.useState(1.8)
   const [mapH, setMapH] = React.useState(500)
   const mapRef = React.useRef(null as HTMLDivElement | null)
@@ -2305,7 +2311,7 @@ export default function TornPostcardPortfolio({
               <div className="tpp-ncard tpp-project-info" aria-live="polite">
                 {list.map((project, index) => <div key={project.name} className="tpp-project-details" data-current={index === pi ? "" : undefined} aria-hidden={index !== pi} inert={index !== pi} style={{ visibility: index === pi ? "visible" : "hidden" }}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="tpp-h" style={{ fontSize: "clamp(22px,2.6cqw,34px)", fontWeight: 400, letterSpacing: ".04em" }}>
+                  <h3 className="tpp-h" style={{ fontSize: "clamp(22px,2.6cqw,34px)", fontWeight: 400, letterSpacing: ".04em", minWidth: 0, overflowWrap: "anywhere" }}>
                     {project.name}
                   </h3>
                   <span className="tpp-serif shrink-0" style={{ fontSize: 15, opacity: 0.7 }}>
@@ -2353,12 +2359,13 @@ export default function TornPostcardPortfolio({
                     →
                   </button>
                 </div>
-                <div className="flex items-center gap-1" role="group" aria-label="Projects">
+                <div className="tpp-project-pips relative flex min-w-0 flex-1 items-center gap-1 overflow-x-auto" role="group" aria-label="Projects" style={{ maxWidth: "100%", scrollbarWidth: "none" }}>
                   {list.map((p, j) => (
                     <button
                       key={j}
                       type="button"
                       className="tpp-pip"
+                      style={{ flexShrink: 0 }}
                       aria-label={p.name}
                       aria-current={j === pi}
                       onClick={() => j !== pi && step(j - pi)}

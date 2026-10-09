@@ -144,6 +144,7 @@ const url = process.argv[2] || 'http://localhost:3001';
 
     await go('Work');
     const deck = page.locator('.tpp-project-stack');
+    const projectNames = await page.getByRole('group', { name: 'Projects', exact: true }).locator('button').evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')));
     const dragProject = async (fraction, cancel = false, keyboard = false) => {
       const box = await deck.boundingBox();
       const x = box.x + box.width / 2, y = box.y + box.height / 2;
@@ -168,21 +169,21 @@ const url = process.argv[2] || 'http://localhost:3001';
           return node.style.transform === target.style.transform;
         }), true, 'A keyboard project change must cancel the held card to its new deck position.');
         await page.keyboard.press('Space');
-        assert.match(await deck.getAttribute('aria-label'), /ProZ0/, 'A cancelled drag must not consume keyboard button activation.');
+        assert.ok((await deck.getAttribute('aria-label')).includes(projectNames[2]), 'A cancelled drag must not consume keyboard button activation.');
       }
       await page.mouse.up();
       await page.waitForTimeout(350);
     };
     await dragProject(.1);
-    assert.match(await deck.getAttribute('aria-label'), /Nét Studio/);
+    assert.ok((await deck.getAttribute('aria-label')).includes(projectNames[0]));
     await dragProject(-.4, true);
-    assert.match(await deck.getAttribute('aria-label'), /Nét Studio/);
+    assert.ok((await deck.getAttribute('aria-label')).includes(projectNames[0]));
     await dragProject(-.4);
-    assert.match(await deck.getAttribute('aria-label'), /Garden Dreams/);
+    assert.ok((await deck.getAttribute('aria-label')).includes(projectNames[1]));
     await dragProject(.4);
-    assert.match(await deck.getAttribute('aria-label'), /Nét Studio/);
+    assert.ok((await deck.getAttribute('aria-label')).includes(projectNames[0]));
     await dragProject(.1, false, true);
-    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    assert.ok((await deck.getAttribute('aria-label')).includes(projectNames[2]));
 
     for (const [width, height] of [[1440, 900], [1024, 768], [768, 1024], [390, 844], [320, 640]]) {
       console.log('Checking timeline:', width);

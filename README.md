@@ -8,9 +8,15 @@ Thông tin lấy từ [README GitHub của Astraa](https://github.com/5erax/5era
 
 ## Dự án
 
-ProZ0, MediMate AI, FinGenie, GeoConnect, CVmate, Ecommerce Mobile và MLN Web đều dẫn đến repository thật. ProZ0 được ghi rõ đang phát triển; không thêm số liệu thành tích hoặc năm ra mắt chưa xác nhận. Liên kết bản live của MediMate nằm ở mục Contact.
+ProZ0, MediMate AI, FinGenie, GeoConnect, CVmate, Ecommerce Mobile và MLN Web dùng homepage HTTPS khi repo có bản live, nếu không thì dẫn đến repository thật. ProZ0 được ghi rõ đang phát triển; không thêm số liệu thành tích hoặc năm ra mắt chưa xác nhận. Liên kết bản live của MediMate cũng nằm ở mục Contact.
 
-Hai dự án mới nhất đứng đầu Work: **Nét Studio** ([website](https://net-studio-nu.vercel.app/), React/GSAP/Lenis) và **Garden Dreams** ([website](https://garden-dreams-florist.vercel.app/), React/Supabase/Motion). Nội dung dựa trên README của các repo, preview WebP chụp trực tiếp từ website đang chạy. Nút View project mở bản live; repo Garden Dreams giữ private.
+**Nét Studio** ([website](https://net-studio-nu.vercel.app/), React/GSAP/Lenis) và **Garden Dreams** ([website](https://garden-dreams-florist.vercel.app/), React/Supabase/Motion) có preview WebP chụp trực tiếp từ website. Garden Dreams đã chuyển public theo yêu cầu chủ repo.
+
+Work tự cập nhật qua GitHub REST API ở server, cache/revalidate mỗi 3600 giây khi có truy cập, không cần deploy lại. Lấy tối đa 100 repo public của 5erax và 300 sự kiện public gần đây; push và PR do 5erax mở được tính là đóng góp, không tính star/follow. Repo ngoài tài khoản cũng được lấy khi có đóng góp public (tối đa 10 repo). Repo sở hữu không có sự kiện trong cửa sổ API dùng `pushed_at` làm mốc dự phòng; repo fork chỉ hiện khi có đóng góp. Bỏ repo hồ sơ, hai repo portfolio và repo archived/private; hiển thị tối đa 12 dự án.
+
+Cover, “Latest contribution” trong About và mốc Now trong Journey đều dùng dự án đứng đầu. Giữ tên/preview/stack đã biên tập cho repo đã biết; dự án mới dùng tên, description, language và homepage HTTPS trên GitHub, kèm minh họa của template nếu chưa có preview thật. Khi API lỗi/rate limit, dùng catalogue đã lưu để trang vẫn hoạt động. Không cần token, không đưa bí mật ra trình duyệt. API Events có độ trễ riêng (GitHub ghi 30 giây đến 6 giờ) và chỉ giữ sự kiện 30 ngày, nên đây không phải cập nhật tức thời. Nguồn: [GitHub Events](https://docs.github.com/en/rest/activity/events), [Next.js fetch revalidation](https://nextjs.org/docs/app/api-reference/functions/fetch).
+
+`npm run check:github` kiểm tra thứ tự, loại hoạt động không phải đóng góp, repo private/archived/fork, link an toàn, preview cũ, dự án mới, giới hạn và lỗi API bằng fetch giả lập.
 
 ## Chạy
 
@@ -46,7 +52,7 @@ Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` đ
 
 `npm run check:motion -- http://localhost:3001` kiểm tra riêng số lượt xem thật trước khi mở, video chạy không có nút pause, ảnh dự phòng, gallery tự chuyển mỗi 3 giây, kéo/hủy kéo/lật bằng bàn phím và touch, thẻ dự án giữ kích thước, cuộn dọc trên postcard, lối tắt Contact và tọa độ các mốc timeline ở 320–1440 px. Cả hai browser check giả lập API lượt xem để không tăng bộ đếm production.
 
-Kiểm tra gồm năm chương, chín dự án với liên kết thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
+Kiểm tra gồm năm chương, danh sách dự án động với liên kết thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
 
 ## Music stamp
 

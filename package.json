@@ -9,7 +9,8 @@
     "check": "tsc --noEmit",
     "check:browser": "node scripts/browser-check.cjs",
     "check:motion": "node scripts/postcard-motion-check.cjs",
-    "check:counter": "node scripts/profile-views-check.cjs"
+    "check:counter": "node scripts/profile-views-check.cjs",
+    "check:github": "node scripts/github-projects-check.cjs"
   },
   "dependencies": {
     "next": "16.4.0",

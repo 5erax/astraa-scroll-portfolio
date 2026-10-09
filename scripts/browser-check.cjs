@@ -165,9 +165,12 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     assert.equal(await page.locator('a[href="mailto:lagna0175@gmail.com"]').count(), 1);
     await go('Work');
     assert.equal(await audio.evaluate(node => node.paused), true, 'A manual Pause must survive later site interactions.');
-    const names = ['Nét Studio', 'Garden Dreams', 'ProZ0', 'MediMate AI', 'FinGenie', 'GeoConnect', 'CVmate', 'Ecommerce Mobile', 'MLN Web'];
-    const urls = ['https://net-studio-nu.vercel.app/', 'https://garden-dreams-florist.vercel.app/', ...['ProZ0', 'SEP490_FE_MedicalAIAssistant', 'FinGenie', 'geoconnect', 'CVmate', 'ecomerce-mobile', 'MLN-web'].map(repo => 'https://github.com/5erax/' + repo)];
-    assert.equal(await page.locator('.tpp-polaroid img').count(), names.length, 'Every project must have an actual preview instead of a generated landscape.');
+    const names = await page.getByRole('group', { name: 'Projects', exact: true }).locator('button').evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')));
+    const urls = await page.locator('.tpp-project-details a').evaluateAll(nodes => nodes.map(node => node.getAttribute('href')));
+    assert.ok(names.length > 1 && names.length <= 12);
+    assert.equal(new Set(names).size, names.length);
+    assert.ok(urls.every(url => url.startsWith('https://')));
+    assert.ok(await page.locator('.tpp-polaroid img').count() >= 2, 'Existing real previews must survive project sync.');
     const note = page.locator('.tpp-hero-note');
     await go('Cover');
     await page.mouse.move(1200, 700);
@@ -182,15 +185,15 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       await page.getByRole('button', { name: 'Next project', exact: true }).click();
       await page.waitForTimeout(450);
     }
-    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), 'Nét Studio');
+    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names[0]);
     await page.getByRole('button', { name: 'Next project', exact: true }).focus();
     const workY = await page.evaluate(() => scrollY);
     await page.keyboard.press('ArrowLeft');
-    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), 'MLN Web');
+    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names.at(-1));
     assert.equal(await page.evaluate(() => scrollY), workY);
-    for (let i = 0; i <= names.indexOf('CVmate'); i++) await page.getByRole('button', { name: 'Next project', exact: true }).click();
+    for (let i = 0; i <= 2; i++) await page.getByRole('button', { name: 'Next project', exact: true }).click();
     await page.waitForTimeout(500);
-    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), 'CVmate');
+    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names[2]);
     await go('Journey');
     const pin = page.locator('.tpp-pin').first();
     await pin.click();
@@ -276,7 +279,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
     await page.mouse.down();
     await page.mouse.move(box.x + box.width * .2, box.y + box.height * .5, { steps: 8 });
     await page.mouse.up();
-    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), 'Garden Dreams');
+    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names[1]);
     const touch = await page.context().newCDPSession(page);
     const swipe = async (x1, y1, x2, y2) => {
       await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x1, y: y1 }] });
@@ -288,7 +291,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       await page.waitForTimeout(500);
     };
     await swipe(box.x + box.width * .2, box.y + box.height * .5, box.x + box.width * .8, box.y + box.height * .5);
-    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), 'Nét Studio');
+    assert.equal(await page.getByRole('group', { name: 'Projects', exact: true }).locator('[aria-current=true]').getAttribute('aria-label'), names[0]);
     const panY = await page.evaluate(() => scrollY);
     await swipe(box.x + box.width * .5, box.y + box.height * .8, box.x + box.width * .5, box.y + box.height * .2);
     assert.ok(await page.evaluate(() => scrollY) > panY + 20, 'Vertical touch gestures must keep native page scrolling.');
@@ -393,6 +396,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || path.join(os.homed
       assert.equal(await allowed.locator('audio').evaluate(node => node.paused), true);
     } finally { await allowedBrowser.close(); }
     assert.deepEqual(errors, []);
-    console.log('PASS: envelope caption and physical airmail layers, actual prefetched profile views/no extra chapter counts/unavailable storage, personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, nine project images and verified links, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
+    console.log('PASS: envelope caption and physical airmail layers, actual prefetched profile views/no extra chapter counts/unavailable storage, personal portrait/avatar, fixed-frame mini gallery with team + four photos, click/touch/keyboard/wrap/live announcements, disabled LinkedIn without navigation, letter entry and 35% music, About/scroll/ambient behavior, dynamic projects, preserved previews and verified links, audio/error/device-volume controls, portfolio flows, 320–1440px layouts, no browser errors.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
