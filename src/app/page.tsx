@@ -34,6 +34,20 @@ const portfolio = {
   },
   projects: [
     {
+      name: 'Nét Studio', year: '2026', role: 'Creative studio · interactive website',
+      description: 'A bilingual creative studio website with cobalt engraved illustrations, switchable palettes, project filters, and a downloadable brief. Built with React, GSAP, and Lenis.',
+      tags: ['React', 'GSAP', 'Lenis'],
+      url: 'https://net-studio-nu.vercel.app/', note: 'ideas take shape',
+      image: '/media/net-studio-preview.webp',
+    },
+    {
+      name: 'Garden Dreams', year: '2026', role: 'Florist storefront · web experience',
+      description: 'A Vietnamese florist storefront with product discovery, a cart, personalised cards, and customer order history. Built with React and Supabase.',
+      tags: ['React', 'Supabase', 'Motion'],
+      url: 'https://garden-dreams-florist.vercel.app/', note: 'flowers, little notes & memories',
+      image: '/media/garden-dreams-preview.webp',
+    },
+    {
       name: 'ProZ0', role: 'Browser game · in development',
       description: 'A 2D pixel-art survival and exploration sandbox about building a new civilization and uncovering the traces of an older one. My current focus is its Phase 1 vertical slice.',
       tags: ['TypeScript', 'PixiJS', 'Vite'],

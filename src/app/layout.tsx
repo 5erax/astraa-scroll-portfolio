@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://astraa1.vercel.app'),
   alternates: { canonical: '/' },
   title: 'Astraa — A developer with an eye for the interface.',
-  description: 'Astraa, a fullstack developer in Vietnam focused on expressive UI and thoughtful motion. Explore ProZ0, MediMate AI, FinGenie, and more.',
+  description: 'Astraa, a fullstack developer in Vietnam focused on expressive UI and thoughtful motion. Explore Nét Studio, Garden Dreams, ProZ0, and more.',
   authors: [{ name: 'Astraa', url: 'https://github.com/5erax' }],
   icons: { icon: '/media/avatar-personal.png' },
   openGraph: {

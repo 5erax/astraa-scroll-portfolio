@@ -87,6 +87,7 @@ const url = process.argv[2] || 'http://localhost:3001';
     assert.equal(await autoGallery.locator('img[data-current]').getAttribute('src'), heldPhoto, 'Keyboard focus must hold the photo being viewed.');
     const paper = page.locator('.tpp-flip');
     const back = async expected => {
+      await page.waitForFunction(expected => document.querySelector('.tpp-flip').hasAttribute('data-back') === expected, expected);
       assert.equal(await paper.getAttribute('data-back'), expected ? '' : null);
       assert.equal(await page.locator(`[data-side=${expected ? 'front' : 'back'}]`).evaluate(node => node.inert), true);
       await page.waitForTimeout(330);
@@ -167,21 +168,21 @@ const url = process.argv[2] || 'http://localhost:3001';
           return node.style.transform === target.style.transform;
         }), true, 'A keyboard project change must cancel the held card to its new deck position.');
         await page.keyboard.press('Space');
-        assert.match(await deck.getAttribute('aria-label'), /FinGenie/, 'A cancelled drag must not consume keyboard button activation.');
+        assert.match(await deck.getAttribute('aria-label'), /ProZ0/, 'A cancelled drag must not consume keyboard button activation.');
       }
       await page.mouse.up();
       await page.waitForTimeout(350);
     };
     await dragProject(.1);
-    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    assert.match(await deck.getAttribute('aria-label'), /Nét Studio/);
     await dragProject(-.4, true);
-    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    assert.match(await deck.getAttribute('aria-label'), /Nét Studio/);
     await dragProject(-.4);
-    assert.match(await deck.getAttribute('aria-label'), /MediMate AI/);
+    assert.match(await deck.getAttribute('aria-label'), /Garden Dreams/);
     await dragProject(.4);
-    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
+    assert.match(await deck.getAttribute('aria-label'), /Nét Studio/);
     await dragProject(.1, false, true);
-    assert.match(await deck.getAttribute('aria-label'), /FinGenie/);
+    assert.match(await deck.getAttribute('aria-label'), /ProZ0/);
 
     for (const [width, height] of [[1440, 900], [1024, 768], [768, 1024], [390, 844], [320, 640]]) {
       console.log('Checking timeline:', width);
@@ -223,7 +224,8 @@ const url = process.argv[2] || 'http://localhost:3001';
       await go('Work');
       const cardSize = await page.locator('.tpp-project-info').evaluate(node => [node.offsetWidth, node.offsetHeight]);
       const controlsY = await page.locator('.tpp-project-controls').evaluate(node => node.offsetTop);
-      for (let project = 0; project < 7; project++) {
+      const projectCount = await page.getByRole('group', { name: 'Projects', exact: true }).locator('button').count();
+      for (let project = 0; project < projectCount; project++) {
         await page.getByRole('group', { name: 'Projects', exact: true }).locator('button').nth(project).click();
         assert.deepEqual(await page.locator('.tpp-project-info').evaluate(node => [node.offsetWidth, node.offsetHeight]), cardSize, `Project card dimensions changed at ${width}px.`);
         assert.equal(await page.locator('.tpp-project-controls').evaluate(node => node.offsetTop), controlsY, 'Project controls must not move with the description.');

@@ -10,6 +10,8 @@ Thông tin lấy từ [README GitHub của Astraa](https://github.com/5erax/5era
 
 ProZ0, MediMate AI, FinGenie, GeoConnect, CVmate, Ecommerce Mobile và MLN Web đều dẫn đến repository thật. ProZ0 được ghi rõ đang phát triển; không thêm số liệu thành tích hoặc năm ra mắt chưa xác nhận. Liên kết bản live của MediMate nằm ở mục Contact.
 
+Hai dự án mới nhất đứng đầu Work: **Nét Studio** ([website](https://net-studio-nu.vercel.app/), React/GSAP/Lenis) và **Garden Dreams** ([website](https://garden-dreams-florist.vercel.app/), React/Supabase/Motion). Nội dung dựa trên README của các repo, preview WebP chụp trực tiếp từ website đang chạy. Nút View project mở bản live; repo Garden Dreams giữ private.
+
 ## Chạy
 
 Mở `START.cmd` trong thư mục này, rồi truy cập **http://localhost:3001**. Giữ cửa sổ terminal mở khi sử dụng; nhấn `Ctrl+C` để dừng.
@@ -44,7 +46,7 @@ Sau khi chạy server, dùng `npm run check:browser -- http://localhost:3001` đ
 
 `npm run check:motion -- http://localhost:3001` kiểm tra riêng số lượt xem thật trước khi mở, video chạy không có nút pause, ảnh dự phòng, gallery tự chuyển mỗi 3 giây, kéo/hủy kéo/lật bằng bàn phím và touch, thẻ dự án giữ kích thước, cuộn dọc trên postcard, lối tắt Contact và tọa độ các mốc timeline ở 320–1440 px. Cả hai browser check giả lập API lượt xem để không tăng bộ đếm production.
 
-Kiểm tra gồm năm chương, bảy repository thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
+Kiểm tra gồm năm chương, chín dự án với liên kết thật, focus/inert khi lật postcard, chuyển dự án liên tiếp và bằng phím mũi tên, ánh sáng/độ nghiêng giấy theo cuộn, tuyết pause/resume khi cuộn, không tự snap khi dừng wheel, About vừa giấy không có cuộn lồng, lỗi form và clipboard, menu mobile/Escape, vuốt ngang bằng touch và cuộn dọc tự nhiên, viewport 320/390/768/1024/1440 px, giữ chương khi đổi chiều cao màn hình hoặc bật reduced motion, ảnh tải đủ và lỗi trình duyệt.
 
 ## Music stamp
 
@@ -120,7 +122,9 @@ Bao thư nhỏ ở About là nút **Write Astraa a letter**, chuyển tới Cont
 
 Màn mở đầu dùng video **heart-lake-side-wuthering-waves-moewalls-com.mp4** do Astraa cung cấp, chuyển từ 4K/60 fps, khoảng 101,7 MB, thành H.264 1280×720/30 fps khoảng **3,63 MB**, có fast start và không có audio. Poster WebP khoảng 102 KB lấy từ video. Video loop không tiếng, không có nút pause/resume. Theo yêu cầu của Astraa, nền video vẫn chạy với reduced motion; các hiệu ứng giấy vẫn giảm chuyển động. Tab bị ẩn tạm dừng decode, trở lại thì tiếp tục; gesture đầu tiên thử lại nếu browser chặn autoplay. Nó được gỡ khỏi trang khi phong bì mở xong; lỗi video dùng poster. Tem và footer dùng năm **2026**. Nhạc giữ cơ chế bắt đầu ở 35% sau thao tác mở thư.
 
-Work kéo tấm ảnh theo con trỏ ở cả hai chiều, không chờ đến lúc thả mới phản ứng. Thả qua ngưỡng 22% chiều rộng (tối thiểu 40 px) để chuyển dự án; kéo ngắn hoặc hủy trả ảnh về chồng. Vuốt dọc trên touch vẫn cuộn trang. Kéo, nút và bàn phím dùng cùng state/transition, không còn keyframe xung đột khi đổi liên tiếp. Bảy nội dung mô tả nằm cùng một ô CSS Grid; các thẻ ẩn giữ chiều cao tự nhiên của nội dung dài nhất nhưng `inert` và không đọc được. Khung ngoài và hàng điều hướng giữ cùng kích thước/vị trí khi chọn dự án khác, tự tính lại theo viewport.
+Work kéo tấm ảnh theo con trỏ ở cả hai chiều, không chờ đến lúc thả mới phản ứng. Thả qua ngưỡng 22% chiều rộng (tối thiểu 40 px) để chuyển dự án; kéo ngắn hoặc hủy trả ảnh về chồng. Vuốt dọc trên touch vẫn cuộn trang. Kéo, nút và bàn phím dùng cùng state/transition, không còn keyframe xung đột khi đổi liên tiếp. Chín nội dung mô tả nằm cùng một ô CSS Grid; các thẻ ẩn giữ chiều cao tự nhiên của nội dung dài nhất nhưng `inert` và không đọc được. Khung ngoài và hàng điều hướng giữ cùng kích thước/vị trí khi chọn dự án khác, tự tính lại theo viewport.
+
+Dòng kẻ ở phần facts trên mặt sau About thuộc chính `<dd>` viết tay, dùng cùng font-size và line-height 1.5em với chữ. Nhãn không có nền dòng kẻ; bỏ border đáy trùng lặp. Khi giá trị xuống dòng, chữ và giấy cùng nhịp, thay vì nền theo font 16px của ô cha.
 
 ## Nguồn
 
