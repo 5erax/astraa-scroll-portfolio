@@ -558,6 +558,7 @@ const TPP_CSS = `
 .tpp-pc-grid{display:grid;grid-template-columns:1fr 1px 1fr;gap:clamp(12px,2cqw,26px);height:100%;padding:clamp(14px,2.2cqw,26px)}
 .tpp-rule{background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(1.5em - 1px),rgba(38,54,79,.22) calc(1.5em - 1px),rgba(38,54,79,.22) 1.5em)}
 .tpp-hw{font-family:var(--tpp-hand);font-size:clamp(13px,1.45cqw,19px);line-height:1.5em;color:#2f4a76}
+.tpp-fact-value{background-position:0 -.2em}
 .tpp-about-copy{font-size:clamp(14px,min(1.4cqw,2.3cqh),18px)}
 .tpp-mini-gallery{display:flex;flex-direction:column;position:relative;width:100%;height:100%;cursor:pointer;color:var(--tpp-ink);text-align:left}
 .tpp-gallery-image{display:block;position:relative;flex:1;min-height:0;background:#e4dfd5;overflow:clip}
@@ -2150,11 +2151,11 @@ export default function TornPostcardPortfolio({
         </div>
         <dl className="mt-4 grid min-h-0 flex-1 content-center gap-x-6 gap-y-3" style={{ gridTemplateColumns: narrow ? "1fr" : "1fr 1fr" }}>
           {(ab.facts || []).map((f) => (
-            <div key={f.label} className="tpp-rule" style={{ borderBottom: "1px solid rgba(38,54,79,.18)", paddingBottom: 4 }}>
+            <div key={f.label}>
               <dt className="tpp-label" style={{ fontSize: 9, opacity: 0.6 }}>
                 {f.label}
               </dt>
-              <dd className="tpp-hand m-0" style={{ fontSize: "clamp(16px,1.7cqw,22px)", color: "#2f4a76" }}>
+              <dd className="tpp-fact-value tpp-rule tpp-hw m-0" style={{ fontSize: "clamp(16px,1.7cqw,22px)" }}>
                 {f.value}
               </dd>
             </div>
