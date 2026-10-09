@@ -90,7 +90,7 @@ Gallery dùng native button, hỗ trợ click/tap, Enter/Space, ArrowLeft/ArrowR
 
 Ảnh được resize/nén bằng Sharp đã có sẵn trong Next.js, không thêm dependency và không sửa nội dung bằng AI. Ảnh team được crop bớt không gian trống, vẫn giữ đủ bốn người và toàn thân. Bản xuất bỏ metadata của máy ảnh. `IMG_8595.jpg` được lấy vùng phía trên để làm avatar vuông 384×384; tên file `avatar-personal.png` tránh dùng lại URL avatar cũ. File gốc trong Downloads được giữ nguyên.
 
-About dùng ảnh cá nhân do Astraa cung cấp. Bảy polaroid dự án đều dùng ảnh WebP 800×800, không còn ảnh phong cảnh mẫu. Các ảnh chụp từ trang public ngày 08/10/2026:
+About dùng ảnh cá nhân do Astraa cung cấp. Các dự án hiện tại đều có preview WebP của giao diện thật. Ảnh đầu tiên chụp ngày 08/10/2026, bốn ảnh bổ sung ngày 09/10/2026:
 
 | File trong `public/media/` | Nguồn | Nội dung |
 | --- | --- | --- |
@@ -99,10 +99,14 @@ About dùng ảnh cá nhân do Astraa cung cấp. Bảy polaroid dự án đều
 | `geoconnect-preview.webp` | [GeoConnect](https://geoconnect-nu.vercel.app) | Chế độ Terrain có sẵn, giữ credit OpenStreetMap/OpenTopoMap |
 | `cvmate-preview.webp` | [CVmate](https://c-vmate-hu48.vercel.app) | Trang giới thiệu |
 | `mln-preview.webp` | [MLN Web](https://mln-web-bay.vercel.app) | Trang học tập |
-| `fingenie-preview.webp` | [FinGenie](https://github.com/5erax/FinGenie) | Repository; chưa có ảnh demo được xác minh |
-| `ecommerce-preview.webp` | [Ecommerce Mobile](https://github.com/5erax/ecomerce-mobile) | Repository; chưa có ảnh demo được xác minh |
+| `net-studio-preview.webp` | [Nét Studio](https://net-studio-nu.vercel.app/) | Website studio |
+| `garden-dreams-preview.webp` | [Garden Dreams](https://garden-dreams-florist.vercel.app/) | Website bán hoa |
+| `fingenie-interface.webp` | [FinGenie](https://github.com/5erax/FinGenie) | Landing page chạy local từ mã nguồn, Firebase dùng cấu hình demo để render giao diện công khai |
+| `ecommerce-interface.webp` | [Ecommerce Mobile](https://github.com/5erax/ecomerce-mobile) | Màn hình cửa hàng Expo Web chạy local, catalogue public Fake Store API của ứng dụng |
+| `medimate-mobile-interface.webp` | [MediMate Mobile](https://github.com/5erax/SEP490_MB_MedicalAIAssistant) | Màn hình đăng nhập Expo Web chạy local, không đăng nhập hoặc đọc hồ sơ bệnh nhân |
+| `mln-ai-interface.webp` | [MLN AI](https://mln-ai.vercel.app/) | Màn hình đăng nhập website public |
 
-Hai ảnh repository được ghi rõ **source repository · preview pending**. Không dùng mockup để giả làm giao diện đã hoàn thành. Các minh họa núi/tuyết/trang giấy là artwork trang trí của template, vẫn giữ nguyên.
+Không dùng mockup hoặc AI để giả làm giao diện đã hoàn thành. Ảnh chụp bản local thể hiện giao diện từ mã nguồn, không khẳng định đã kiểm tra backend hay triển khai app mobile. MLN122 chưa có commit (`size: 0`) nên không đưa vào danh sách dự án; khi repo có nội dung, feed có thể lấy lại. Dự án mới ngoài catalogue ảnh vẫn dùng minh họa template cho đến khi có preview thật. Các minh họa núi/tuyết/trang giấy trang trí vẫn giữ nguyên.
 
 ## Motion & UX
 

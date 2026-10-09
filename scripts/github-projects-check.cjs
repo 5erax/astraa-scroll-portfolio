@@ -6,7 +6,7 @@ const path = require('node:path');
   const { selectProjects, getGitHubProjects } = await import(pathToFileURL(path.resolve('src/lib/github-projects.ts')));
   const repo = (full_name, extra = {}) => ({ full_name, name: full_name.split('/')[1], private: false,
     archived: false, fork: false, pushed_at: '2026-10-01T00:00:00Z', description: null,
-    homepage: null, language: 'TypeScript', ...extra });
+    homepage: null, language: 'TypeScript', size: 100, ...extra });
   const event = (name, date, type = 'PushEvent') => ({ type, repo: { name },
     actor: { login: '5erax' }, created_at: date });
   const curated = [{ name: 'Nét Studio', repository: '5erax/net-studio', image: '/media/net-studio-preview.webp', description: 'Saved description' }];
@@ -15,7 +15,7 @@ const path = require('node:path');
   const repositories = [repo('5erax/net-studio', { homepage: 'javascript:alert(1)' }),
     repo('team/new-app', { fork: true, homepage: 'https://new-app.example/', description: 'New app' }),
     repo('other/starred', { fork: true }), repo('5erax/astraa-scroll-portfolio'), repo('5erax/5erax'),
-    repo('5erax/pflio'), repo('5erax/secret', { private: true }), repo('5erax/old', { archived: true })];
+    repo('5erax/pflio'), repo('5erax/secret', { private: true }), repo('5erax/old', { archived: true }), repo('5erax/empty', { size: 0 })];
   const result = selectProjects(repositories, events, curated);
   assert.deepEqual(result.map(p => p.repository), ['team/new-app', '5erax/net-studio']);
   assert.equal(result[0].url, 'https://new-app.example/');

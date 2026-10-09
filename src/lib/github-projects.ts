@@ -3,6 +3,7 @@ import type { PostcardProject } from '@/components/ui/torn-postcard-portfolio';
 type Repository = {
   full_name: string; name: string; private: boolean; archived: boolean; fork: boolean;
   pushed_at: string; description: string | null; homepage: string | null; language: string | null;
+  size: number;
 };
 type Contribution = {
   type: string; actor: { login: string }; repo: { name: string }; created_at: string;
@@ -35,6 +36,7 @@ export function selectProjects(repositories: Repository[], events: Contribution[
   }
   const known = new Map(curated.map(project => [project.repository?.toLowerCase(), project]));
   return repositories.filter(repo => repositoryName.test(repo.full_name) && !repo.private && !repo.archived
+    && repo.size > 0
     && !excluded.has(repo.full_name.toLowerCase()) && (!repo.fork || contributions.has(repo.full_name.toLowerCase()))
     && Number.isFinite(Date.parse(repo.pushed_at)))
     .sort((a, b) => (contributions.get(b.full_name.toLowerCase()) ?? Date.parse(b.pushed_at))

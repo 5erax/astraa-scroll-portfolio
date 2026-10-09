@@ -64,10 +64,17 @@ const portfolio = {
       image: '/media/medimate-preview.webp',
     },
     {
+      name: 'MediMate Mobile', repository: '5erax/SEP490_MB_MedicalAIAssistant', role: 'Healthcare · mobile app',
+      description: 'The mobile companion to MediMate AI, built with React Native and Expo. A personal health interface for sign-in, health profiles and care workflows.',
+      tags: ['React Native', 'Expo', 'TypeScript'],
+      url: 'https://github.com/5erax/SEP490_MB_MedicalAIAssistant', note: 'mobile app · sign-in screen',
+      image: '/media/medimate-mobile-interface.webp',
+    },
+    {
       name: 'FinGenie', repository: '5erax/FinGenie', role: 'Personal finance · web & mobile',
       description: 'AI-assisted personal finance across web and mobile. A shared codebase brings together a Next.js web app, a NestJS API, an Expo mobile app, and PostgreSQL.',
       tags: ['Next.js', 'NestJS', 'Expo', 'PostgreSQL'],
-      url: 'https://github.com/5erax/FinGenie', note: 'source repository · preview pending', image: '/media/fingenie-preview.webp',
+      url: 'https://github.com/5erax/FinGenie', note: 'financial adventures · web interface', image: '/media/fingenie-interface.webp',
     },
     {
       name: 'GeoConnect', repository: '5erax/geoconnect', role: 'Maps & communities',
@@ -85,13 +92,19 @@ const portfolio = {
       name: 'Ecommerce Mobile', repository: '5erax/ecomerce-mobile', role: 'Mobile commerce',
       description: 'A React Native and Expo shopping experience with product browsing, a wishlist, a cart, and order history.',
       tags: ['React Native', 'Expo'],
-      url: 'https://github.com/5erax/ecomerce-mobile', note: 'source repository · preview pending', image: '/media/ecommerce-preview.webp',
+      url: 'https://github.com/5erax/ecomerce-mobile', note: 'mobile storefront · home screen', image: '/media/ecommerce-interface.webp',
     },
     {
       name: 'MLN Web', repository: '5erax/MLN-web', role: 'Interactive learning',
       description: 'An interactive Vietnamese Party history learning platform, with lessons, timelines, and quizzes.',
       tags: ['Education', 'Timelines', 'Quizzes'],
       url: 'https://github.com/5erax/MLN-web', note: 'history through interaction', image: '/media/mln-preview.webp',
+    },
+    {
+      name: 'MLN AI', repository: '5erax/MLN-AI', role: 'Learning platform · web experience',
+      description: 'A Vietnamese Marx–Lenin philosophy learning application with an AI chatbot and a dedicated sign-in experience. Built with React, FastAPI and Supabase.',
+      tags: ['React', 'FastAPI', 'Supabase'], url: 'https://mln-ai.vercel.app/', note: 'learning platform · sign-in screen',
+      image: '/media/mln-ai-interface.webp',
     },
   ],
   route: [
